@@ -1,7 +1,7 @@
 # Architecture Overview
 
 **Last Updated:** 22 March 2026  
-**Status:** Draft
+**Status:** Phase 1 — Setup Complete
 
 ---
 
@@ -18,11 +18,11 @@ RevRecon: Detect where usage and billing don't match and explain why.
 **Approach:** Start with simple Layered Architecture, refactor when pain is felt.
 
 ```
-Phase 1: Layered (Controller → Service → Repository)
+Phase 1: Layered (Controller → Service → Repository)  ← CURRENT
     ↓
-Phase 2: Feel the pain? → ADR + refactor to Clean/Hexagonal
+Phase 2+: Feel the pain? → ADR + refactor to Clean/Hexagonal
     ↓
-Phase 3: Event Sourcing experiment (separate bounded context)
+Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 ```
 
 **Rationale:** 
@@ -30,19 +30,17 @@ Phase 3: Event Sourcing experiment (separate bounded context)
 - When adding second data source or replacing DB — that's the moment
 - Document the pain and decision in ADR
 
-**Reference:** ADR-001 (to be written)
+**Reference:** [ADR-001: Initial Architecture Choice](../adr/0001-initial-architecture-choice.md) ✅
 
 ---
 
 ## Architecture Evolution Plan
 
-| Phase | Style | Focus |
-|-------|-------|-------|
-| Phase 1 | Layered | Simple start, learn basics |
-| Phase 2 | Evaluate | Do we feel pain? What specifically? |
-| Phase 2-3 | Clean/Hexagonal | If pain warrants refactor |
-| Phase 2-3 | Event Sourcing | Experiment for audit trail |
-| Phase 3 | CQRS | Optional, for read optimization |
+| Phase | Style | Focus | Status |
+|-------|-------|-------|--------|
+| Phase 1 | Layered | Simple start, learn basics | 🟡 In Progress |
+| Phase 2 | Evaluate | Do we feel pain? What specifically? | 🔴 TODO |
+| Phase 4 | TBD | One experiment: Event Sourcing / CQRS / Alerts / Simulation | 🔴 TODO |
 
 ---
 
@@ -64,31 +62,40 @@ Phase 3: Event Sourcing experiment (separate bounded context)
 └─────────────────────────────────────────────────────────┘
 ```
 
+**Package Structure:**
+```
+com.revrecon.backend/
+├── controller/
+├── service/
+├── repository/
+└── model/
+```
+
 ---
 
 ## Architectural Styles to Explore
 
-| Style | Description | When to try |
-|-------|-------------|-------------|
-| Layered | Controller → Service → Repository | Phase 1 (start) |
-| Clean Architecture | Use Cases, Entities, Interfaces | Phase 2 (if pain) |
-| Hexagonal | Ports & Adapters | Phase 2 (if pain) |
-| Event-Driven | Async communication via events | Phase 2 |
-| Event Sourcing | Store events, derive state | Phase 2-3 |
-| CQRS | Separate read/write models | Phase 3 |
+| Style | Description | When to try | Status |
+|-------|-------------|-------------|--------|
+| Layered | Controller → Service → Repository | Phase 1 | 🟡 Current |
+| Clean Architecture | Use Cases, Entities, Interfaces | If pain felt | 🔴 TODO |
+| Hexagonal | Ports & Adapters | If pain felt | 🔴 TODO |
+| Event-Driven | Async communication via events | Phase 2+ | 🔴 TODO |
+| Event Sourcing | Store events, derive state | Phase 4 option | 🔴 TODO |
+| CQRS | Separate read/write models | Phase 4 option | 🔴 TODO |
 
 ---
 
 ## Core Components (Planned)
 
-| Component | Responsibility | Phase |
-|-----------|---------------|-------|
-| UsageController | POST /events, GET /usage | 1 |
-| BillingController | POST /billing, GET /billing | 1 |
-| DiscrepancyController | GET /discrepancies | 2 |
-| ReconciliationService | Compare usage vs billing | 2 |
-| DiscrepancyDetector | Find and classify issues | 2 |
-| ExplainabilityEngine | Analyze root cause | 3 |
+| Component | Responsibility | Phase | Status |
+|-----------|---------------|-------|--------|
+| UsageController | POST /events, GET /usage | 1 | 🔴 TODO |
+| BillingController | POST /billing, GET /billing | 1 | 🔴 TODO |
+| DiscrepancyController | GET /discrepancies | 2 | 🔴 TODO |
+| ReconciliationService | Compare usage vs billing | 2 | 🔴 TODO |
+| DiscrepancyDetector | Find and classify issues | 2 | 🔴 TODO |
+| ExplainabilityEngine | Analyze root cause | 3 | 🔴 TODO |
 
 ---
 
@@ -118,13 +125,13 @@ BillingRecord      ReconciliationService
 
 ## Production Concerns (Built In)
 
-| Concern | Pattern | Phase |
-|---------|---------|-------|
-| Idempotency | Idempotency key per event | 1 |
-| Audit trail | Created/updated timestamps, user_id | 1 |
-| Versioning | API: /v1/, Schema: Flyway | 1 |
-| Concurrency | Optimistic locking (@Version) | 2 |
-| Error handling | Retry + dead letter table | 2 |
+| Concern | Pattern | Phase | Status |
+|---------|---------|-------|--------|
+| Idempotency | Idempotency key per event | 1 | 🔴 TODO |
+| Audit trail | Created/updated timestamps | 1 | 🔴 TODO |
+| Versioning | Schema: Flyway | 1 | ✅ Configured |
+| Concurrency | Optimistic locking (@Version) | 2 | 🔴 TODO |
+| Error handling | Retry + dead letter table | 2 | 🔴 TODO |
 
 ---
 
@@ -134,22 +141,21 @@ All documented in `/docs/adr/`
 
 | ADR | Decision | Date | Status |
 |-----|----------|------|--------|
-| ADR-001 | Start with Layered, refactor later | TBD | 🔴 TODO |
-| ADR-002 | Event Sourcing for audit (Phase 2) | TBD | 🔴 TODO |
-| ADR-003 | CQRS decision (Phase 3) | TBD | 🔴 TODO |
+| [ADR-001](../adr/0001-initial-architecture-choice.md) | Start with Layered, refactor later | 22 Mar 2026 | ✅ Accepted |
+| ADR-002 | Phase 4 experiment choice | TBD | 🔴 TODO |
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| Language | Java 17+ | Work alignment, learning |
-| Framework | Spring Boot 3.x | Industry standard |
-| Database | PostgreSQL | Reliable, good for learning |
-| Migrations | Flyway | Versioned schema |
-| Testing | JUnit 5, TestContainers | Integration tests |
-| Data Processing | Python (later) | Industry standard for data |
+| Layer | Technology | Version | Status |
+|-------|-----------|---------|--------|
+| Language | Java | 21 (LTS) | ✅ |
+| Framework | Spring Boot | 4.0.4 | ✅ |
+| Database | PostgreSQL | 16+ | ✅ Configured |
+| Migrations | Flyway | — | ✅ Configured |
+| Testing | JUnit 5, TestContainers | — | 🔴 TODO |
+| API Docs | Swagger UI | — | 🔴 TODO |
 
 ---
 
@@ -171,4 +177,6 @@ Location: `/docs/architecture/diagrams/`
 | Date | Change | ADR |
 |------|--------|-----|
 | 22 Mar 2026 | Initial structure | — |
-| 22 Mar 2026 | Decision: Layered → refactor strategy | ADR-001 (pending) |
+| 22 Mar 2026 | Layered Architecture decision | ADR-001 ✅ |
+| 22 Mar 2026 | Spring Boot 4.0.4 + Java 21 setup | — |
+| 22 Mar 2026 | Package structure created | — |

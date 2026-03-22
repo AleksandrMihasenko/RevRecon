@@ -1,47 +1,71 @@
 # RevRecon
 
-Detect where usage and billing don’t match and explain why.
+Detect where usage and billing don't match and explain why.
 
 ## What is this
 
-RevRecon is a small backend project exploring how billing systems fail in practice.
+RevRecon is a backend project exploring how billing systems fail in practice.
 
 It focuses on a simple question:
 
-Why does usage not match what gets billed?
+> Why does usage not match what gets billed?
 
 ## What it does
 
-- ingests usage events and billing records
-- compares expected vs actual billing
-- detects mismatches (missing, duplicated, wrong price, timing issues)
-- explains why they happen
+- Ingests usage events and billing records
+- Compares expected vs actual billing
+- Detects mismatches (missing, duplicated, wrong price, timing issues)
+- Explains why they happen
 
 ## Why
 
 In many systems:
-- usage is tracked separately from billing
-- pricing rules are complex
-- data is often inconsistent
+- Usage is tracked separately from billing
+- Pricing rules are complex
+- Data is often inconsistent
 
 As a result, companies:
-- underbill
-- overbill
-- fix things manually
+- Underbill (revenue leakage)
+- Overbill (customer complaints)
+- Fix things manually
 
 This project explores how to detect and understand these problems.
 
-## Scope
+## Tech Stack
 
-Current focus:
-- usage → billing reconciliation
-- discrepancy detection
-- basic explainability
+- Java 21
+- Spring Boot 4.0.4
+- PostgreSQL
+- Flyway (migrations)
 
-Planned:
-- alerts
-- simulation (what-if pricing / usage scenarios)
+## Project Structure
+
+```
+RevRecon/
+├── backend/           # Spring Boot application
+├── docs/
+│   ├── adr/           # Architecture Decision Records
+│   ├── architecture/  # System design, patterns
+│   └── domain/        # Domain glossary
+└── .context/          # Project context files
+```
 
 ## Status
 
-Work in progress.
+**Phase 1: Core Model + Ingestion** — In Progress
+
+- [x] Project setup
+- [x] ADR-001: Layered Architecture
+- [ ] Data model (Customer, Plan, UsageEvent, BillingRecord)
+- [ ] Ingestion endpoints
+- [ ] Reconciliation logic
+
+## Documentation
+
+- [Architecture Overview](docs/architecture/overview.md)
+- [ADR-001: Initial Architecture Choice](docs/adr/0001-initial-architecture-choice.md)
+- [Domain Glossary](docs/domain/glossary.md)
+
+## License
+
+MIT

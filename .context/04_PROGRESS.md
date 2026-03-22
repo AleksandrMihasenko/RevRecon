@@ -2,7 +2,7 @@
 
 **Project:** RevRecon
 **Started:** 21 March 2026
-**Current Phase:** Setup complete → Starting Phase 1
+**Current Phase:** Phase 1 — Core Model + Ingestion
 **Market entry:** June 2026
 
 ---
@@ -11,8 +11,8 @@
 
 | Phase | Priority | Status |
 |-------|----------|--------|
-| Phase 1-2 | P0 MUST HAVE | 🔴 |
-| Phase 3-5 | P1/P2 NICE TO HAVE | 🔴 |
+| Phase 1-2 | P0 MUST HAVE | 🟡 In Progress |
+| Phase 3-5 | P1/P2 NICE TO HAVE | 🔴 TODO |
 
 ---
 
@@ -21,14 +21,17 @@
 | Area | Status |
 |------|--------|
 | Repository | ✅ |
-| README | ✅ |
-| License (MIT) | ✅ |
+| README, LICENSE | ✅ |
 | AGENTS.md, CLAUDE.md | ✅ |
 | .context/ structure | ✅ |
 | docs/ structure | ✅ |
 | Plan validated | ✅ |
-| Java project setup | 🔴 TODO |
-| ADR-001 | 🔴 TODO |
+| ADR-001 (Layered Architecture) | ✅ |
+| Spring Boot project setup | ✅ |
+| PostgreSQL + Flyway config | ✅ |
+| Package structure | ✅ |
+| Data model | 🔴 TODO |
+| First entity | 🔴 TODO |
 
 ---
 
@@ -37,12 +40,15 @@
 **Target:** April 2026
 **Priority:** P0 MUST HAVE
 
-### Setup
+### Setup ✅ DONE
 | Task | Status |
 |------|--------|
-| Spring Boot project | 🔴 TODO |
-| PostgreSQL + Flyway | 🔴 TODO |
-| ADR-001: Layered architecture | 🔴 TODO |
+| Spring Boot 4.0.4, Java 21 | ✅ |
+| PostgreSQL config | ✅ |
+| Flyway config | ✅ |
+| ADR-001: Layered architecture | ✅ |
+| Package structure (controller, service, repository, model) | ✅ |
+| V1__init.sql (empty) | ✅ |
 
 ### Entities
 | Task | Status |
@@ -76,33 +82,6 @@
 
 ---
 
-## Phase 2: Reconciliation + Detection
-
-**Target:** May 2026
-**Priority:** P0 MUST HAVE
-
-| Task | Status |
-|------|--------|
-| Comparison logic: expected vs billed | 🔴 TODO |
-| Discrepancy types classification | 🔴 TODO |
-| GET /discrepancies | 🔴 TODO |
-| Revenue metrics | 🔴 TODO |
-| Scheduled reconciliation job | 🔴 TODO |
-| Error handling (failed reconciliation) | 🔴 TODO |
-| Scenario tests per discrepancy type | 🔴 TODO |
-
----
-
-## Phase 3-5: Nice to Have
-
-| Phase | Focus | Status |
-|-------|-------|--------|
-| Phase 3 | Explainability | 🔴 TODO |
-| Phase 4 | One advanced experiment (TBD) | 🔴 TODO |
-| Phase 5 | Demo readiness | 🔴 TODO |
-
----
-
 ## Interview Readiness
 
 | Question | Phase | Ready? |
@@ -113,8 +92,6 @@
 | How to detect revenue leakage? | 2 | 🔴 |
 | Design a reconciliation system | 2 | 🔴 |
 | How to handle failed batch jobs? | 2 | 🔴 |
-| Explain billing errors to users | 3 | 🔴 |
-| Event Sourcing vs CRUD trade-offs | 4 | 🔴 |
 
 ---
 
@@ -128,18 +105,22 @@
 - [x] AGENTS.md, CLAUDE.md
 - [x] .context/ structure + private files
 - [x] docs/ structure (adr, architecture, domain)
-- [x] Consilium: plan validated
-- [x] Final roadmap with 5 phases
+- [x] Consilium: 5-phase plan validated
+- [x] ADR-001: Layered Architecture decision
+- [x] Spring Boot project setup (4.0.4, Java 21)
+- [x] PostgreSQL + Flyway configuration
+- [x] Package structure (controller, service, repository, model)
 
 **Learned:**
-- Architecture: start Layered, refactor when pain felt
-- Production concerns for billing: idempotency, audit
-- Phase 1-2 = must have, Phase 3-5 = nice to have
+- Layered vs Clean vs Hexagonal: trade-offs
+- Why start simple: "can't understand complex until you feel pain from simple"
+- MVC vs Layered for backend APIs
+- Refactor triggers: CLI, second data source, painful tests
 
-**Next week:**
-- [ ] Java project setup (Spring Boot)
-- [ ] ADR-001: Layered architecture
-- [ ] Data model draft (diagram first)
+**Next:**
+- [ ] Data model discussion
+- [ ] Entities: Customer, Plan, Subscription, UsageEvent, BillingRecord
+- [ ] First migration with tables
 
 ---
 

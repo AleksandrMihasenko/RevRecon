@@ -19,23 +19,7 @@ For each pattern:
 
 ## Patterns in Use
 
-### 1. [Pattern Name]
-
-**Where:** `path/to/code`
-
-**Problem:** What problem does it solve?
-
-**Why chosen:** Why this approach?
-
-**Alternative:** What else could work? Trade-off?
-
-**Learned:** What did I understand?
-
----
-
-### 2. [Pattern Name]
-
-(template repeats)
+(To be filled as patterns are implemented)
 
 ---
 
@@ -52,19 +36,20 @@ For each pattern:
 | Observer / Events | Decoupled notifications | 🔴 TODO |
 | Specification | Complex query building | 🔴 TODO |
 | Unit of Work | Transaction management | 🔴 TODO |
+| Idempotency Key | Prevent duplicate processing | 🔴 TODO |
 
 ---
 
-## Architectural Patterns to Try
+## Architectural Patterns
 
-| Pattern | Description | Status |
-|---------|-------------|--------|
-| Layered (MVC) | Controller → Service → Repository | 🔴 TODO |
-| Clean Architecture | Use Cases, Entities, Interfaces | 🔴 TODO |
-| Hexagonal | Ports & Adapters | 🔴 TODO |
-| Event-Driven | Async communication via events | 🔴 TODO |
-| Event Sourcing | Store events, derive state | 🔴 TODO |
-| CQRS | Separate read/write models | 🔴 TODO |
+| Pattern | Description | Status | ADR |
+|---------|-------------|--------|-----|
+| Layered | Controller → Service → Repository | 🟡 Current | [ADR-001](../adr/0001-initial-architecture-choice.md) |
+| Clean Architecture | Use Cases, Entities, Interfaces | 🔴 Later | — |
+| Hexagonal | Ports & Adapters | 🔴 Later | — |
+| Event-Driven | Async communication via events | 🔴 Later | — |
+| Event Sourcing | Store events, derive state | 🔴 Phase 4 option | — |
+| CQRS | Separate read/write models | 🔴 Phase 4 option | — |
 
 **Goal:** Try at least 2-3 approaches, compare, document trade-offs.
 
@@ -72,19 +57,27 @@ For each pattern:
 
 ## Pattern Comparison Notes
 
-### [Pattern A] vs [Pattern B]
+### Layered vs Clean vs Hexagonal
 
-**Context:** When did this comparison come up?
+**Context:** ADR-001 — choosing initial architecture for Phase 1.
 
-**Pattern A pros:**
-- ...
+**Layered pros:**
+- Simple to understand
+- Fast to get started
+- Good enough for MVP
 
-**Pattern B pros:**
-- ...
+**Clean/Hexagonal pros:**
+- Domain isolated from infrastructure
+- Better testability
+- Easy to swap implementations
 
-**Decision:** Which did I choose and why?
+**Decision:** Layered for Phase 1. Refactor when pain felt.
 
-**What I learned:** ...
+**What I learned:** 
+- "Can't understand why complex is needed until you feel pain from simple"
+- Refactor triggers: adding CLI, second data source, painful tests, logic leaking to controller
+
+**Full discussion:** [ADR-001](../adr/0001-initial-architecture-choice.md)
 
 ---
 
