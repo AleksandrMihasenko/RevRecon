@@ -8,6 +8,8 @@ Detect where usage and billing don't match and explain why.
 **Primary goal:** Learning platform for billing domain, data quality, and backend skills.
 **Secondary goal:** Portfolio project for interviews.
 
+**Type:** Backend-heavy. Frontend/CLI optional later.
+
 ---
 
 ## Goals
@@ -29,6 +31,14 @@ Detect where usage and billing don't match and explain why.
 | Database | PostgreSQL 16+ | Reliable, good for learning |
 | Migrations | Flyway | Versioned schema |
 | Testing | JUnit 5, TestContainers | Integration tests |
+| API docs | Swagger UI | Demo without frontend |
+
+### Future (Optional)
+
+| Layer | Technology | When |
+|-------|-----------|------|
+| Frontend | React or Vue + Tailwind | Phase 5+ if time |
+| CLI | Picocli or Spring Shell | Phase 5+ if time |
 
 ---
 
@@ -135,6 +145,10 @@ Detect where usage and billing don't match and explain why.
 - [ ] Small demo dataset
 - [ ] End-to-end demo flow
 - [ ] README polish for recruiters
+
+**Optional extensions:**
+- [ ] Simple dashboard (React/Vue, 1-2 screens: discrepancy list + details)
+- [ ] CLI tool (`revrecon reconcile`, `revrecon explain`)
 
 **Milestone:** Project is easy to run and explain in interviews.
 
