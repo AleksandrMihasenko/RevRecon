@@ -30,8 +30,9 @@
 | Spring Boot project setup | ✅ |
 | PostgreSQL + Flyway config | ✅ |
 | Package structure | ✅ |
-| Data model | 🔴 TODO |
-| First entity | 🔴 TODO |
+| **Data model (V1 migration)** | ✅ |
+| First entity (Java) | 🔴 TODO |
+| First endpoint | 🔴 TODO |
 
 ---
 
@@ -48,9 +49,18 @@
 | Flyway config | ✅ |
 | ADR-001: Layered architecture | ✅ |
 | Package structure (controller, service, repository, model) | ✅ |
-| V1__init.sql (empty) | ✅ |
 
-### Entities
+### Data Model ✅ DONE
+| Task | Status |
+|------|--------|
+| V1__init.sql migration | ✅ |
+| customers table | ✅ |
+| plans table (JSONB prices) | ✅ |
+| subscriptions table (ENUM status) | ✅ |
+| usage_events table (idempotency_key UNIQUE) | ✅ |
+| billing_records table (ENUM status) | ✅ |
+
+### Entities (Java)
 | Task | Status |
 |------|--------|
 | Customer entity | 🔴 TODO |
@@ -64,8 +74,7 @@
 |------|--------|
 | POST /events (usage ingestion) | 🔴 TODO |
 | POST /billing (billing records) | 🔴 TODO |
-| Idempotency keys | 🔴 TODO |
-| Audit fields (created_at, updated_at) | 🔴 TODO |
+| Idempotency handling | 🔴 TODO |
 
 ### Queries
 | Task | Status |
@@ -86,8 +95,8 @@
 
 | Question | Phase | Ready? |
 |----------|-------|--------|
-| Design usage-based billing data model | 1 | 🔴 |
-| How to prevent duplicate billing events? | 1 | 🔴 |
+| Design usage-based billing data model | 1 | 🟡 (can explain model) |
+| How to prevent duplicate billing events? | 1 | 🟡 (know concept) |
 | SQL: calculate total usage per customer | 1 | 🔴 |
 | How to detect revenue leakage? | 2 | 🔴 |
 | Design a reconciliation system | 2 | 🔴 |
@@ -117,11 +126,29 @@
 - MVC vs Layered for backend APIs
 - Refactor triggers: CLI, second data source, painful tests
 
+---
+
+### Week 2: 28 March 2026
+
+**Done:**
+- [x] Data model discussion (entities, relationships)
+- [x] V1__init.sql migration written
+- [x] 5 tables: customers, plans, subscriptions, usage_events, billing_records
+- [x] 2 ENUMs: subscription_status, billing_status
+- [x] Domain glossary updated
+
+**Learned:**
+- Idempotency key: UNIQUE constraint vs primary key
+- JSONB for flexible pricing (Map<metric, price>)
+- ENUM in PostgreSQL: CREATE TYPE ... AS ENUM
+- TIMESTAMPTZ vs TIMESTAMP (timezone matters)
+- Why migrations: versioning for database schema
+
 **Next:**
-- [ ] Data model discussion
-- [ ] Entities: Customer, Plan, Subscription, UsageEvent, BillingRecord
-- [ ] First migration with tables
+- [ ] Java entities matching the schema
+- [ ] Repositories
+- [ ] First endpoint (POST /events)
 
 ---
 
-**Last Updated:** 22 March 2026
+**Last Updated:** 28 March 2026

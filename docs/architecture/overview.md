@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Last Updated:** 22 March 2026  
-**Status:** Phase 1 — Setup Complete
+**Last Updated:** 28 March 2026  
+**Status:** Phase 1 — Data Model Complete
 
 ---
 
@@ -73,6 +73,60 @@ com.revrecon.backend/
 
 ---
 
+## Data Model
+
+```
+┌──────────────┐       ┌──────────────┐
+│   Customer   │       │     Plan     │
+├──────────────┤       ├──────────────┤
+│ id           │       │ id           │
+│ name         │       │ name         │
+│ created_at   │       │ prices (JSON)│
+│ updated_at   │       │ created_at   │
+└──────┬───────┘       │ updated_at   │
+       │               └──────┬───────┘
+       │                      │
+       │    ┌─────────────────┘
+       │    │
+       ▼    ▼
+┌──────────────────┐
+│   Subscription   │
+├──────────────────┤
+│ id               │
+│ customer_id (FK) │
+│ plan_id (FK)     │
+│ discount         │
+│ start_date       │
+│ end_date         │
+│ status (ENUM)    │
+│ created_at       │
+│ updated_at       │
+└──────────────────┘
+
+┌──────────────────┐     ┌──────────────────┐
+│   UsageEvent     │     │  BillingRecord   │
+├──────────────────┤     ├──────────────────┤
+│ id               │     │ id               │
+│ idempotency_key  │     │ customer_id (FK) │
+│ customer_id (FK) │     │ period_start     │
+│ metric           │     │ period_end       │
+│ quantity         │     │ amount           │
+│ timestamp        │     │ status (ENUM)    │
+│ created_at       │     │ created_at       │
+│ updated_at       │     │ updated_at       │
+└──────────────────┘     └──────────────────┘
+```
+
+**Key design decisions:**
+- `prices` as JSONB in Plan (flexible, no separate PricingRule table)
+- `idempotency_key` with UNIQUE constraint (prevents duplicate events)
+- ENUMs for status fields (DB enforces valid values)
+- All tables have audit fields (`created_at`, `updated_at`)
+
+**Details:** See [Domain Glossary](../domain/glossary.md)
+
+---
+
 ## Architectural Styles to Explore
 
 | Style | Description | When to try | Status |
@@ -127,8 +181,8 @@ BillingRecord      ReconciliationService
 
 | Concern | Pattern | Phase | Status |
 |---------|---------|-------|--------|
-| Idempotency | Idempotency key per event | 1 | 🔴 TODO |
-| Audit trail | Created/updated timestamps | 1 | 🔴 TODO |
+| Idempotency | UNIQUE constraint on idempotency_key | 1 | ✅ In schema |
+| Audit trail | created_at / updated_at on all tables | 1 | ✅ In schema |
 | Versioning | Schema: Flyway | 1 | ✅ Configured |
 | Concurrency | Optimistic locking (@Version) | 2 | 🔴 TODO |
 | Error handling | Retry + dead letter table | 2 | 🔴 TODO |
@@ -152,8 +206,8 @@ All documented in `/docs/adr/`
 |-------|-----------|---------|--------|
 | Language | Java | 21 (LTS) | ✅ |
 | Framework | Spring Boot | 4.0.4 | ✅ |
-| Database | PostgreSQL | 16+ | ✅ Configured |
-| Migrations | Flyway | — | ✅ Configured |
+| Database | PostgreSQL | 16+ | ✅ |
+| Migrations | Flyway | — | ✅ |
 | Testing | JUnit 5, TestContainers | — | 🔴 TODO |
 | API Docs | Swagger UI | — | 🔴 TODO |
 
@@ -167,7 +221,7 @@ Location: `/docs/architecture/diagrams/`
 |---------|---------|--------|
 | System Context (C4) | Big picture | 🔴 TODO |
 | Container (C4) | Main components | 🔴 TODO |
-| Data Model | Entities & relationships | 🔴 TODO |
+| Data Model | Entities & relationships | ✅ Above |
 | Sequence | Key flows | 🔴 TODO |
 
 ---
@@ -180,3 +234,4 @@ Location: `/docs/architecture/diagrams/`
 | 22 Mar 2026 | Layered Architecture decision | ADR-001 ✅ |
 | 22 Mar 2026 | Spring Boot 4.0.4 + Java 21 setup | — |
 | 22 Mar 2026 | Package structure created | — |
+| 28 Mar 2026 | Data model (V1 migration) | — |

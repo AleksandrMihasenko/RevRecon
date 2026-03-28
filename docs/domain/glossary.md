@@ -1,22 +1,7 @@
 # Domain Glossary
 
-**Last Updated:** 22 March 2026  
+**Last Updated:** 28 March 2026
 **Purpose:** Ubiquitous language — terms we use in code, conversations, and documentation.
-
----
-
-## How to Use
-
-This is the **single source of truth** for domain terminology.
-
-- Code uses these exact terms (class names, method names, variables)
-- Documentation uses these terms
-- Conversations use these terms
-
-When adding a term:
-1. Define it clearly
-2. Show how it relates to other terms
-3. Give an example
 
 ---
 
@@ -27,16 +12,16 @@ When adding a term:
 **Definition:** An organization or individual who is billed for usage.
 
 **Attributes:**
-- id
-- name
-- ...
+- `id` — internal identifier
+- `name` — customer name
+- `created_at`, `updated_at` — audit fields
 
 **Relationships:**
 - Has many Subscriptions
 - Has many UsageEvents
 - Has many BillingRecords
 
-**Example:** "Acme Corp is a Customer with 3 active Subscriptions."
+**Example:** "Acme Corp is a Customer with an active subscription to Pro plan."
 
 ---
 
@@ -45,15 +30,15 @@ When adding a term:
 **Definition:** A pricing configuration that defines how usage is billed.
 
 **Attributes:**
-- id
-- name
-- pricing model (flat, usage-based, tiered)
-- ...
+- `id` — internal identifier
+- `name` — plan name (e.g., "Pro", "Enterprise")
+- `prices` — JSONB map of metric → price (e.g., `{"api_calls": 0.01, "storage_gb": 0.10}`)
+- `created_at`, `updated_at` — audit fields
 
 **Relationships:**
 - Has many Subscriptions
 
-**Example:** "Pro Plan charges $0.01 per API call after 10,000 free calls."
+**Example:** "Pro Plan charges $0.01 per API call and $0.10 per GB of storage."
 
 ---
 
@@ -62,18 +47,20 @@ When adding a term:
 **Definition:** A Customer's active commitment to a Plan.
 
 **Attributes:**
-- id
-- customer_id
-- plan_id
-- status (active, cancelled, paused)
-- billing_period (monthly, annual)
-- ...
+- `id` — internal identifier
+- `customer_id` → Customer
+- `plan_id` → Plan
+- `discount` — percentage discount (integer: 10 = 10%)
+- `start_date` — when subscription started
+- `end_date` — when subscription ends (NULL = ongoing)
+- `status` — ENUM: `active`, `paused`, `cancelled`, `expired`
+- `created_at`, `updated_at` — audit fields
 
 **Relationships:**
 - Belongs to Customer
 - Belongs to Plan
 
-**Example:** "Acme Corp has an active Subscription to Pro Plan, billed monthly."
+**Example:** "Acme Corp has an active Subscription to Pro Plan with 10% discount."
 
 ---
 
@@ -82,16 +69,18 @@ When adding a term:
 **Definition:** A single unit of billable activity.
 
 **Attributes:**
-- id
-- customer_id
-- event_type (api_call, storage_gb, seat, ...)
-- quantity
-- timestamp
-- ...
+- `id` — internal identifier
+- `idempotency_key` — unique key from source system (prevents duplicates)
+- `customer_id` → Customer
+- `metric` — what was used (e.g., "api_calls", "storage_gb")
+- `quantity` — how much (DECIMAL for fractional values)
+- `timestamp` — when usage occurred
+- `created_at`, `updated_at` — audit fields
 
 **Relationships:**
 - Belongs to Customer
-- May be included in a BillingRecord
+
+**Idempotency:** Same `idempotency_key` twice → second insert rejected by UNIQUE constraint.
 
 **Example:** "Customer made 150 API calls on March 22, 2026."
 
@@ -102,103 +91,78 @@ When adding a term:
 **Definition:** A calculated charge for a billing period.
 
 **Attributes:**
-- id
-- customer_id
-- period_start
-- period_end
-- amount
-- status (draft, invoiced, paid)
-- ...
+- `id` — internal identifier
+- `customer_id` → Customer
+- `period_start` — billing period start
+- `period_end` — billing period end
+- `amount` — total amount billed (DECIMAL)
+- `status` — ENUM: `draft`, `open`, `paid`, `voided`
+- `created_at`, `updated_at` — audit fields
 
 **Relationships:**
 - Belongs to Customer
-- Aggregates UsageEvents
 
-**Example:** "March billing for Acme Corp: $45.00 based on 4,500 API calls."
-
----
-
-### Discrepancy
-
-**Definition:** A mismatch between expected and actual billing.
-
-**Attributes:**
-- id
-- type (missing_usage, duplicate, wrong_price, timing_mismatch)
-- severity
-- status (detected, investigating, resolved)
-- ...
-
-**Relationships:**
-- References UsageEvent(s) and/or BillingRecord(s)
-- Has Explanation
-
-**Example:** "500 API calls from March 20 are not included in March billing."
+**Example:** "March billing for Acme Corp: $17.00, status: paid."
 
 ---
 
-### Explanation
+## Enums
 
-**Definition:** Root cause analysis for a Discrepancy.
+### subscription_status
 
-**Attributes:**
-- id
-- discrepancy_id
-- cause_category
-- description
-- ...
+| Value | Meaning |
+|-------|---------|
+| `active` | Subscription is running |
+| `paused` | Temporarily stopped |
+| `cancelled` | Customer cancelled |
+| `expired` | End date passed |
 
-**Example:** "Missing usage caused by event ingestion delay — events arrived after billing cutoff."
+### billing_status
 
----
-
-## Domain Events
-
-| Event | When it occurs | Data |
-|-------|----------------|------|
-| UsageEventReceived | New usage ingested | customer_id, event_type, quantity, timestamp |
-| BillingRecordCreated | Billing calculated | customer_id, period, amount |
-| DiscrepancyDetected | Mismatch found | type, severity, affected records |
-| DiscrepancyResolved | Issue fixed | resolution_type, notes |
+| Value | Meaning |
+|-------|---------|
+| `draft` | Not yet finalized |
+| `open` | Sent to customer, awaiting payment |
+| `paid` | Payment received |
+| `voided` | Cancelled/invalid |
 
 ---
 
-## Commands
+## Reconciliation Flow
 
-| Command | What it does | Input |
-|---------|--------------|-------|
-| IngestUsage | Record new usage event | customer, type, quantity, timestamp |
-| CalculateBilling | Generate billing for period | customer, period |
-| DetectDiscrepancies | Find mismatches | customer, period |
-| ExplainDiscrepancy | Analyze root cause | discrepancy_id |
-
----
-
-## Queries
-
-| Query | What it returns | Filters |
-|-------|-----------------|---------|
-| GetUsageForPeriod | Usage events | customer, date range |
-| GetBillingHistory | Billing records | customer, date range |
-| GetDiscrepancies | Detected issues | customer, status, type |
-| GetDiscrepancyDetails | Single discrepancy with explanation | discrepancy_id |
+```
+1. Get UsageEvents for customer + period
+2. Get Subscription → Plan → prices
+3. Calculate: expected = SUM(quantity × price per metric)
+4. Apply discount if any
+5. Compare expected vs BillingRecord.amount
+6. If mismatch → Discrepancy (Phase 2)
+```
 
 ---
 
-## Business Rules
+## Key Concepts
 
-| Rule | Description |
-|------|-------------|
-| Billing cutoff | Usage after cutoff date goes to next period |
-| Duplicate detection | Same event_id within 24h = duplicate |
-| ... | ... |
+### Idempotency Key
+
+A unique identifier sent by the source system to prevent duplicate events.
+
+**Why needed:** Network retry → same event sent twice → without idempotency key, we'd bill twice.
+
+**Implementation:** `UNIQUE` constraint on `idempotency_key` column.
+
+### Metric
+
+A string identifier for the type of usage: `api_calls`, `storage_gb`, `seats`, etc.
+
+The unit is embedded in the name (e.g., `storage_gb` not just `storage`).
+
+### Audit Fields
+
+Every table has `created_at` and `updated_at` for tracking when records were created and modified.
 
 ---
 
-## Notes
+## Notes & Insights
 
-(Add insights about domain as you learn)
-
-**Date:** ...  
-**Topic:** ...  
-**Insight:** ...
+(Add as learning progresses)
