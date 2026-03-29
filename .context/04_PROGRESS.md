@@ -30,8 +30,9 @@
 | Spring Boot project setup | ✅ |
 | PostgreSQL + Flyway config | ✅ |
 | Package structure | ✅ |
-| **Data model (V1 migration)** | ✅ |
-| First entity (Java) | 🔴 TODO |
+| Data model (V1 migration) | ✅ |
+| **Java entities** | ✅ |
+| **Repositories** | 🟡 (1/5) |
 | First endpoint | 🔴 TODO |
 
 ---
@@ -60,21 +61,34 @@
 | usage_events table (idempotency_key UNIQUE) | ✅ |
 | billing_records table (ENUM status) | ✅ |
 
-### Entities (Java)
+### Entities (Java) ✅ DONE
 | Task | Status |
 |------|--------|
-| Customer entity | 🔴 TODO |
-| Plan entity | 🔴 TODO |
-| Subscription entity | 🔴 TODO |
-| UsageEvent entity | 🔴 TODO |
-| BillingRecord entity | 🔴 TODO |
+| Customer entity | ✅ |
+| Plan entity | ✅ |
+| Subscription entity | ✅ |
+| SubscriptionStatus enum | ✅ |
+| UsageEvent entity | ✅ |
+| BillingRecord entity | ✅ |
+| BillingRecordStatus enum | ✅ |
+
+### Repositories 🟡 IN PROGRESS
+| Task | Status |
+|------|--------|
+| CustomerRepository (raw JDBC) | ✅ |
+| PlanRepository | 🔴 TODO |
+| SubscriptionRepository | 🔴 TODO |
+| UsageEventRepository | 🔴 TODO |
+| BillingRecordRepository | 🔴 TODO |
+
+**Decision:** Using raw JDBC (not Spring Data JDBC) to understand boilerplate and trade-offs.
 
 ### API
 | Task | Status |
 |------|--------|
 | POST /events (usage ingestion) | 🔴 TODO |
 | POST /billing (billing records) | 🔴 TODO |
-| Idempotency handling | 🔴 TODO |
+| Idempotency handling (409 Conflict) | 🔴 TODO |
 
 ### Queries
 | Task | Status |
@@ -91,13 +105,25 @@
 
 ---
 
+## Phase 2 Preview
+
+| Task | Status |
+|------|--------|
+| Optimistic locking (version column) | 🔴 TODO |
+| V2__add_version.sql migration | 🔴 TODO |
+| update() with version check | 🔴 TODO |
+
+---
+
 ## Interview Readiness
 
 | Question | Phase | Ready? |
 |----------|-------|--------|
-| Design usage-based billing data model | 1 | 🟡 (can explain model) |
-| How to prevent duplicate billing events? | 1 | 🟡 (know concept) |
+| Design usage-based billing data model | 1 | ✅ (can explain) |
+| How to prevent duplicate billing events? | 1 | ✅ (idempotency_key + 409) |
 | SQL: calculate total usage per customer | 1 | 🔴 |
+| INSERT vs UPDATE separation in billing | 1 | ✅ (can explain why) |
+| Optimistic locking | 2 | 🟡 (know concept) |
 | How to detect revenue leakage? | 2 | 🔴 |
 | Design a reconciliation system | 2 | 🔴 |
 | How to handle failed batch jobs? | 2 | 🔴 |
@@ -128,7 +154,7 @@
 
 ---
 
-### Week 2: 28 March 2026
+### Week 2: 28-29 March 2026
 
 **Done:**
 - [x] Data model discussion (entities, relationships)
@@ -136,19 +162,24 @@
 - [x] 5 tables: customers, plans, subscriptions, usage_events, billing_records
 - [x] 2 ENUMs: subscription_status, billing_status
 - [x] Domain glossary updated
+- [x] All Java entities created (7 files)
+- [x] CustomerRepository (raw JDBC)
 
 **Learned:**
-- Idempotency key: UNIQUE constraint vs primary key
-- JSONB for flexible pricing (Map<metric, price>)
-- ENUM in PostgreSQL: CREATE TYPE ... AS ENUM
-- TIMESTAMPTZ vs TIMESTAMP (timezone matters)
-- Why migrations: versioning for database schema
+- Idempotency key: UNIQUE constraint, return 409 on duplicate
+- JSONB for flexible pricing — store as String, parse in service
+- ENUM in PostgreSQL + Java enum for type safety
+- TIMESTAMPTZ → Instant (not LocalDateTime)
+- Spring Data JDBC vs raw JDBC trade-offs
+- INSERT vs UPDATE: separate methods in billing (clarity > convenience)
+- Optimistic locking: version column, WHERE id=? AND version=?
+- Partial vs Full update problem
 
 **Next:**
-- [ ] Java entities matching the schema
-- [ ] Repositories
-- [ ] First endpoint (POST /events)
+- [ ] Remaining repositories (Plan, Subscription, UsageEvent, BillingRecord)
+- [ ] POST /events endpoint
+- [ ] Idempotency handling in UsageEventRepository
 
 ---
 
-**Last Updated:** 28 March 2026
+**Last Updated:** 29 March 2026

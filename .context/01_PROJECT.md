@@ -24,14 +24,15 @@ Detect where usage and billing don't match and explain why.
 
 ## Tech Stack
 
-| Layer | Technology | Why |
-|-------|-----------|-----|
-| Language | Java 17+ | Work alignment, backend transition |
-| Framework | Spring Boot 3.x | Industry standard |
-| Database | PostgreSQL 16+ | Reliable, good for learning |
-| Migrations | Flyway | Versioned schema |
-| Testing | JUnit 5, TestContainers | Integration tests |
-| API docs | Swagger UI | Demo without frontend |
+| Layer | Technology | Version | Why |
+|-------|-----------|---------|-----|
+| Language | Java | 21 (LTS) | Work alignment, backend transition |
+| Framework | Spring Boot | 4.0.4 | Industry standard |
+| Database | PostgreSQL | 16+ | Reliable, good for learning |
+| Migrations | Flyway | — | Versioned schema |
+| Testing | JUnit 5, TestContainers | — | Integration tests |
+| API docs | Swagger UI | — | Demo without frontend |
+| Data access | Raw JDBC | — | Learning trade-offs vs Spring Data |
 
 ### Future (Optional)
 
@@ -58,13 +59,15 @@ Detect where usage and billing don't match and explain why.
 ### Phase 1: Core Model + Ingestion (April 2026) — P0 MUST HAVE
 
 **Deliverables:**
-- [ ] Spring Boot, PostgreSQL, Flyway setup
-- [ ] Simple layered architecture (ADR-001)
-- [ ] Core entities: Customer, Plan, Subscription
+- [x] Spring Boot, PostgreSQL, Flyway setup
+- [x] Simple layered architecture (ADR-001)
+- [x] Core entities: Customer, Plan, Subscription, UsageEvent, BillingRecord
+- [x] Java entity classes with enums
+- [ ] Repositories (raw JDBC) — 1/5 done
 - [ ] Usage events ingestion (POST /events)
 - [ ] Billing records ingestion (POST /billing)
-- [ ] Idempotency keys (prevent duplicate events)
-- [ ] Audit fields (created_at, updated_at)
+- [ ] Idempotency handling (409 Conflict on duplicate)
+- [x] Audit fields (created_at, updated_at)
 - [ ] Basic aggregation queries
 - [ ] Integration tests for ingestion endpoints
 
@@ -73,8 +76,8 @@ Detect where usage and billing don't match and explain why.
 **Learning focus:** Domain modeling, REST, persistence, SQL basics, idempotency.
 
 **Interview questions after:**
-- "Design usage-based billing data model"
-- "How to prevent duplicate billing events?"
+- "Design usage-based billing data model" ✅
+- "How to prevent duplicate billing events?" ✅
 - "SQL: calculate total usage per customer"
 
 ---
@@ -82,6 +85,7 @@ Detect where usage and billing don't match and explain why.
 ### Phase 2: Reconciliation + Discrepancy Detection (May 2026) — P0 MUST HAVE
 
 **Deliverables:**
+- [ ] Optimistic locking (version column)
 - [ ] Comparison logic: expected vs billed
 - [ ] Discrepancy types: missing, duplicate, wrong price, timing mismatch
 - [ ] GET /discrepancies endpoint
@@ -158,7 +162,7 @@ Detect where usage and billing don't match and explain why.
 
 | Phase | Priority | Target | Status |
 |-------|----------|--------|--------|
-| Phase 1 | P0 MUST | April 2026 | 🔴 TODO |
+| Phase 1 | P0 MUST | April 2026 | 🟡 In Progress |
 | Phase 2 | P0 MUST | May 2026 | 🔴 TODO |
 | Phase 3 | P1 NICE | June 2026 | 🔴 TODO |
 | Phase 4 | P1 NICE | June 2026 | 🔴 TODO |
@@ -170,19 +174,32 @@ Detect where usage and billing don't match and explain why.
 
 ## Production Concerns (Built In)
 
-| Concern | Why | Phase |
-|---------|-----|-------|
-| Idempotency keys | Billing = money, no duplicates | 1 |
-| Audit fields | Who changed what, when | 1 |
-| Error handling | Graceful failure, retry | 2 |
+| Concern | Why | Phase | Status |
+|---------|-----|-------|--------|
+| Idempotency keys | Billing = money, no duplicates | 1 | ✅ In schema |
+| Audit fields | Who changed what, when | 1 | ✅ In schema |
+| Optimistic locking | Prevent lost updates | 2 | 🔴 TODO |
+| Error handling | Graceful failure, retry | 2 | 🔴 TODO |
+
+---
+
+## Key Decisions Made
+
+| Decision | Why | Date |
+|----------|-----|------|
+| Layered Architecture | Simple start, refactor when pain | 22 Mar 2026 |
+| Raw JDBC over Spring Data | Feel the pain, understand trade-offs | 29 Mar 2026 |
+| Separate INSERT/UPDATE methods | Clarity > convenience in billing | 29 Mar 2026 |
+| 409 Conflict for duplicates | Client must know about duplicate | 29 Mar 2026 |
+| JSONB prices as String | Parse in service, simple for Phase 1 | 29 Mar 2026 |
 
 ---
 
 ## Current Focus
 
-**Phase 1:** Project setup, ADR-001 (layered architecture), data model.
+**Phase 1:** Repositories (4 remaining) → POST /events endpoint → Idempotency handling
 
 ---
 
-**Last Updated:** 22 March 2026
-**Status:** Planning complete, starting Phase 1
+**Last Updated:** 29 March 2026
+**Status:** Phase 1 in progress — entities done, repositories in progress
