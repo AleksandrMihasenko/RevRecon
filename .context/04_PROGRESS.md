@@ -31,8 +31,9 @@
 | PostgreSQL + Flyway config | ✅ |
 | Package structure | ✅ |
 | Data model (V1 migration) | ✅ |
-| **Java entities** | ✅ |
-| **Repositories** | 🟡 (1/5) |
+| Java entities | ✅ |
+| **Repositories** | ✅ |
+| Exception hierarchy | ✅ |
 | First endpoint | 🔴 TODO |
 
 ---
@@ -49,7 +50,7 @@
 | PostgreSQL config | ✅ |
 | Flyway config | ✅ |
 | ADR-001: Layered architecture | ✅ |
-| Package structure (controller, service, repository, model) | ✅ |
+| Package structure (controller, service, repository, model, exception) | ✅ |
 
 ### Data Model ✅ DONE
 | Task | Status |
@@ -72,18 +73,24 @@
 | BillingRecord entity | ✅ |
 | BillingRecordStatus enum | ✅ |
 
-### Repositories 🟡 IN PROGRESS
+### Repositories ✅ DONE
 | Task | Status |
 |------|--------|
 | CustomerRepository (raw JDBC) | ✅ |
-| PlanRepository | 🔴 TODO |
-| SubscriptionRepository | 🔴 TODO |
-| UsageEventRepository | 🔴 TODO |
-| BillingRecordRepository | 🔴 TODO |
+| PlanRepository | ✅ |
+| SubscriptionRepository | ✅ |
+| UsageEventRepository | ✅ |
+| BillingRecordRepository | ✅ |
 
-**Decision:** Using raw JDBC (not Spring Data JDBC) to understand boilerplate and trade-offs.
+**Decision:** Using raw JDBC (NamedParameterJdbcTemplate) to understand boilerplate and trade-offs.
 
-### API
+### Exception Handling ✅ DONE
+| Task | Status |
+|------|--------|
+| RevReconException (base) | ✅ |
+| DuplicateEventException | ✅ |
+
+### API 🔴 TODO
 | Task | Status |
 |------|--------|
 | POST /events (usage ingestion) | 🔴 TODO |
@@ -123,6 +130,7 @@
 | How to prevent duplicate billing events? | 1 | ✅ (idempotency_key + 409) |
 | SQL: calculate total usage per customer | 1 | 🔴 |
 | INSERT vs UPDATE separation in billing | 1 | ✅ (can explain why) |
+| Exception handling strategy | 1 | ✅ (domain vs technical) |
 | Optimistic locking | 2 | 🟡 (know concept) |
 | How to detect revenue leakage? | 2 | 🔴 |
 | Design a reconciliation system | 2 | 🔴 |
@@ -175,11 +183,30 @@
 - Optimistic locking: version column, WHERE id=? AND version=?
 - Partial vs Full update problem
 
+---
+
+### Week 3: 4 April 2026
+
+**Done:**
+- [x] All 5 repositories completed (raw JDBC)
+- [x] Exception hierarchy (RevReconException, DuplicateEventException)
+- [x] Idempotency handling in UsageEventRepository
+- [x] Useful query methods: findByCustomerIdAndPeriod, updateStatus
+
+**Learned:**
+- Named parameters (:name) vs positional (?) — named safer for complex queries
+- Enum conversion: toUpperCase() for DB → Java, toLowerCase() for Java → DB
+- NULL handling in JDBC: check before toInstant()
+- Exception responsibility: Repository converts technical → domain exceptions
+- Base exception class: allows unified error handling at controller level
+- Partial update methods (updateStatus) vs full update — safer for billing
+
 **Next:**
-- [ ] Remaining repositories (Plan, Subscription, UsageEvent, BillingRecord)
 - [ ] POST /events endpoint
-- [ ] Idempotency handling in UsageEventRepository
+- [ ] POST /billing endpoint
+- [ ] Service layer
+- [ ] 409 Conflict response handling
 
 ---
 
-**Last Updated:** 29 March 2026
+**Last Updated:** 4 April 2026

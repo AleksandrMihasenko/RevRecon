@@ -63,7 +63,8 @@ Detect where usage and billing don't match and explain why.
 - [x] Simple layered architecture (ADR-001)
 - [x] Core entities: Customer, Plan, Subscription, UsageEvent, BillingRecord
 - [x] Java entity classes with enums
-- [ ] Repositories (raw JDBC) — 1/5 done
+- [x] Repositories (raw JDBC) — 5/5 done
+- [x] Exception hierarchy (RevReconException, DuplicateEventException)
 - [ ] Usage events ingestion (POST /events)
 - [ ] Billing records ingestion (POST /billing)
 - [ ] Idempotency handling (409 Conflict on duplicate)
@@ -176,8 +177,9 @@ Detect where usage and billing don't match and explain why.
 
 | Concern | Why | Phase | Status |
 |---------|-----|-------|--------|
-| Idempotency keys | Billing = money, no duplicates | 1 | ✅ In schema |
+| Idempotency keys | Billing = money, no duplicates | 1 | ✅ In schema + repository |
 | Audit fields | Who changed what, when | 1 | ✅ In schema |
+| Exception hierarchy | Domain errors vs technical | 1 | ✅ Done |
 | Optimistic locking | Prevent lost updates | 2 | 🔴 TODO |
 | Error handling | Graceful failure, retry | 2 | 🔴 TODO |
 
@@ -192,14 +194,15 @@ Detect where usage and billing don't match and explain why.
 | Separate INSERT/UPDATE methods | Clarity > convenience in billing | 29 Mar 2026 |
 | 409 Conflict for duplicates | Client must know about duplicate | 29 Mar 2026 |
 | JSONB prices as String | Parse in service, simple for Phase 1 | 29 Mar 2026 |
+| Repository converts exceptions | Hides infrastructure, domain language | 4 Apr 2026 |
 
 ---
 
 ## Current Focus
 
-**Phase 1:** Repositories (4 remaining) → POST /events endpoint → Idempotency handling
+**Phase 1:** POST /events endpoint → Service layer → 409 Conflict handling → Tests
 
 ---
 
-**Last Updated:** 29 March 2026
-**Status:** Phase 1 in progress — entities done, repositories in progress
+**Last Updated:** 4 April 2026
+**Status:** Phase 1 in progress — repositories done, starting endpoints
