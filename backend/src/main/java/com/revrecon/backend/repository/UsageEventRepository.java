@@ -89,7 +89,7 @@ public class UsageEventRepository {
         ));
     }
 
-    public void insert(UsageEvent event) {
+    public UsageEvent insert(UsageEvent event) {
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("idempotencyKey", event.getIdempotencyKey())
                 .addValue("customerId", event.getCustomerId())
@@ -97,18 +97,23 @@ public class UsageEventRepository {
                 .addValue("quantity", event.getQuantity())
                 .addValue("timestamp", Timestamp.from(event.getTimestamp()));
 
-        try {
-            String sql = "INSERT INTO usage_events (idempotency_key, customer_id, metric, quantity, timestamp) "
-                    + "VALUES (:idempotencyKey, :customerId, :metric, :quantity, :timestamp)";
-            jdbcTemplate.update(sql, params);
+        String sql = "INSERT INTO usage_events (idempotency_key, customer_id, metric, quantity, timestamp) "
+                + "VALUES (:idempotencyKey, :customerId, :metric, :quantity, :timestamp) "
+                + "RETURNING *";
 
+        try {
+            return jdbcTemplate.queryForObject(sql, params, (rs, rowNum) -> new UsageEvent(
+                    rs.getLong("id"),
+                    rs.getString("idempotency_key"),
+                    rs.getLong("customer_id"),
+                    rs.getString("metric"),
+                    rs.getBigDecimal("quantity"),
+                    rs.getTimestamp("timestamp").toInstant(),
+                    rs.getTimestamp("created_at").toInstant(),
+                    rs.getTimestamp("updated_at").toInstant()
+            ));
         } catch (DuplicateKeyException e) {
             throw new DuplicateEventException(event.getIdempotencyKey());
         }
-    }
-
-    public void delete(Long id) {
-        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
-        jdbcTemplate.update("DELETE FROM usage_events WHERE id = :id", params);
     }
 }

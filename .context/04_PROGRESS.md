@@ -32,9 +32,10 @@
 | Package structure | ✅ |
 | Data model (V1 migration) | ✅ |
 | Java entities | ✅ |
-| **Repositories** | ✅ |
+| Repositories | ✅ |
 | Exception hierarchy | ✅ |
-| First endpoint | 🔴 TODO |
+| **POST /usage-events** | ✅ |
+| POST /billing | 🔴 TODO |
 
 ---
 
@@ -50,7 +51,7 @@
 | PostgreSQL config | ✅ |
 | Flyway config | ✅ |
 | ADR-001: Layered architecture | ✅ |
-| Package structure (controller, service, repository, model, exception) | ✅ |
+| Package structure (controller, service, repository, model, exception, dto) | ✅ |
 
 ### Data Model ✅ DONE
 | Task | Status |
@@ -90,12 +91,19 @@
 | RevReconException (base) | ✅ |
 | DuplicateEventException | ✅ |
 
-### API 🔴 TODO
+### DTOs ✅ DONE
 | Task | Status |
 |------|--------|
-| POST /events (usage ingestion) | 🔴 TODO |
+| UsageEventRequest | ✅ |
+| UsageEventResponse | ✅ |
+
+### API 🟡 IN PROGRESS
+| Task | Status |
+|------|--------|
+| POST /api/usage-events | ✅ |
+| 201 Created response | ✅ |
+| 409 Conflict on duplicate | ✅ |
 | POST /billing (billing records) | 🔴 TODO |
-| Idempotency handling (409 Conflict) | 🔴 TODO |
 
 ### Queries
 | Task | Status |
@@ -131,6 +139,7 @@
 | SQL: calculate total usage per customer | 1 | 🔴 |
 | INSERT vs UPDATE separation in billing | 1 | ✅ (can explain why) |
 | Exception handling strategy | 1 | ✅ (domain vs technical) |
+| DTO vs Entity — why separate? | 1 | ✅ (can explain) |
 | Optimistic locking | 2 | 🟡 (know concept) |
 | How to detect revenue leakage? | 2 | 🔴 |
 | Design a reconciliation system | 2 | 🔴 |
@@ -185,13 +194,18 @@
 
 ---
 
-### Week 3: 4 April 2026
+### Week 3: 4-5 April 2026
 
 **Done:**
 - [x] All 5 repositories completed (raw JDBC)
 - [x] Exception hierarchy (RevReconException, DuplicateEventException)
 - [x] Idempotency handling in UsageEventRepository
 - [x] Useful query methods: findByCustomerIdAndPeriod, updateStatus
+- [x] UsageEventRequest DTO
+- [x] UsageEventResponse DTO
+- [x] UsageEventService
+- [x] UsageEventController
+- [x] POST /api/usage-events endpoint (201 + 409)
 
 **Learned:**
 - Named parameters (:name) vs positional (?) — named safer for complex queries
@@ -200,13 +214,19 @@
 - Exception responsibility: Repository converts technical → domain exceptions
 - Base exception class: allows unified error handling at controller level
 - Partial update methods (updateStatus) vs full update — safer for billing
+- @Data (Lombok): generates getters, setters, toString, equals, hashCode
+- DTO vs Entity: separate contracts for API and DB
+- Request DTO vs Response DTO: different fields (no id in request, all fields in response)
+- URL naming: kebab-case (/usage-events), not camelCase
+- RETURNING * in PostgreSQL: get inserted row in one query
+- ResponseEntity for HTTP codes (201 Created, 409 Conflict)
+- Lombok @Data creates void setters — can't chain, use constructor or separate calls
 
 **Next:**
-- [ ] POST /events endpoint
+- [ ] Run and test POST /usage-events
 - [ ] POST /billing endpoint
-- [ ] Service layer
-- [ ] 409 Conflict response handling
+- [ ] Integration tests
 
 ---
 
-**Last Updated:** 4 April 2026
+**Last Updated:** 5 April 2026

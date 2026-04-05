@@ -65,10 +65,11 @@ Detect where usage and billing don't match and explain why.
 - [x] Java entity classes with enums
 - [x] Repositories (raw JDBC) — 5/5 done
 - [x] Exception hierarchy (RevReconException, DuplicateEventException)
-- [ ] Usage events ingestion (POST /events)
-- [ ] Billing records ingestion (POST /billing)
-- [ ] Idempotency handling (409 Conflict on duplicate)
+- [x] DTOs (UsageEventRequest, UsageEventResponse)
+- [x] Usage events ingestion (POST /api/usage-events)
+- [x] Idempotency handling (409 Conflict on duplicate)
 - [x] Audit fields (created_at, updated_at)
+- [ ] Billing records ingestion (POST /billing)
 - [ ] Basic aggregation queries
 - [ ] Integration tests for ingestion endpoints
 
@@ -79,6 +80,7 @@ Detect where usage and billing don't match and explain why.
 **Interview questions after:**
 - "Design usage-based billing data model" ✅
 - "How to prevent duplicate billing events?" ✅
+- "DTO vs Entity — why separate?" ✅
 - "SQL: calculate total usage per customer"
 
 ---
@@ -177,9 +179,10 @@ Detect where usage and billing don't match and explain why.
 
 | Concern | Why | Phase | Status |
 |---------|-----|-------|--------|
-| Idempotency keys | Billing = money, no duplicates | 1 | ✅ In schema + repository |
+| Idempotency keys | Billing = money, no duplicates | 1 | ✅ Done |
 | Audit fields | Who changed what, when | 1 | ✅ In schema |
 | Exception hierarchy | Domain errors vs technical | 1 | ✅ Done |
+| DTO layer | API/DB separation | 1 | ✅ Done |
 | Optimistic locking | Prevent lost updates | 2 | 🔴 TODO |
 | Error handling | Graceful failure, retry | 2 | 🔴 TODO |
 
@@ -195,14 +198,16 @@ Detect where usage and billing don't match and explain why.
 | 409 Conflict for duplicates | Client must know about duplicate | 29 Mar 2026 |
 | JSONB prices as String | Parse in service, simple for Phase 1 | 29 Mar 2026 |
 | Repository converts exceptions | Hides infrastructure, domain language | 4 Apr 2026 |
+| Separate Request/Response DTOs | Different fields, versioning flexibility | 5 Apr 2026 |
+| RETURNING * for insert | One query, get full entity back | 5 Apr 2026 |
 
 ---
 
 ## Current Focus
 
-**Phase 1:** POST /events endpoint → Service layer → 409 Conflict handling → Tests
+**Phase 1:** Test POST /usage-events → POST /billing endpoint → Integration tests
 
 ---
 
-**Last Updated:** 4 April 2026
-**Status:** Phase 1 in progress — repositories done, starting endpoints
+**Last Updated:** 5 April 2026
+**Status:** Phase 1 in progress — first endpoint done, need to test and add billing endpoint
