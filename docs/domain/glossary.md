@@ -66,7 +66,7 @@
 
 ### UsageEvent
 
-**Definition:** A single unit of billable activity.
+**Definition:** A metering observation received from a source system.
 
 **Attributes:**
 - `id` — internal identifier
@@ -84,7 +84,29 @@
 
 **Example:** "Customer made 150 API calls on March 22, 2026."
 
+### UsageEvent Quantity
+
+`UsageEvent` represents a metering observation received from a source system, not only confirmed billable consumption.
+
+`quantity` must be non-negative (`>= 0`). A value of `0` is valid and means the source system explicitly reported zero usage. This is different from missing data: zero means
+"observed and reported as none", while missing means "no observation was received".
+
+This distinction matters for reconciliation, because explicit zero usage can still help explain billing mismatches.
+
+
 ---
+
+### UsageEvent Mutability
+
+Core `UsageEvent` fields are immutable after creation:
+- `idempotency_key`
+- `customer_id`
+- `metric`
+- `quantity`
+- `timestamp`
+
+If source data was wrong, the correction should be modeled as a separate flow, not an in-place update. This preserves auditability and keeps the original metering observation
+traceable.
 
 ### BillingRecord
 
