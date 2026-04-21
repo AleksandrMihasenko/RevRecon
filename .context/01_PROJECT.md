@@ -200,6 +200,9 @@ Detect where usage and billing don't match and explain why.
 | Repository converts exceptions | Hides infrastructure, domain language | 4 Apr 2026 |
 | Separate Request/Response DTOs | Different fields, versioning flexibility | 5 Apr 2026 |
 | RETURNING * for insert | One query, get full entity back | 5 Apr 2026 |
+| Positioning: Billing & Revenue Systems | Market-validated niche, entry point | 19 Apr 2026 |
+
+Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 ---
 
@@ -209,5 +212,5 @@ Detect where usage and billing don't match and explain why.
 
 ---
 
-**Last Updated:** 5 April 2026
+**Last Updated:** 19 April 2026
 **Status:** Phase 1 in progress — first endpoint done, need to test and add billing endpoint

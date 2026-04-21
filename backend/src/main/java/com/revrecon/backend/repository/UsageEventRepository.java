@@ -1,10 +1,8 @@
 package com.revrecon.backend.repository;
 
 import com.revrecon.backend.exception.DuplicateEventException;
-import com.revrecon.backend.exception.RevReconException;
 import com.revrecon.backend.model.UsageEvent;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
