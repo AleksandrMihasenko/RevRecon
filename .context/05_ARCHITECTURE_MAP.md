@@ -1,6 +1,6 @@
 # Architecture Docs
 
-**Updated:** 19 April 2026
+**Updated:** 25 April 2026
 
 ---
 
@@ -59,11 +59,18 @@ com.revrecon.backend/
 │   └── BillingRecordStatus.java
 ├── dto/
 │   ├── UsageEventRequest.java
-│   └── UsageEventResponse.java
+│   ├── UsageEventResponse.java
+│   └── UsageEventErrorResponse.java
 ├── exception/
 │   ├── RevReconException.java
 │   └── DuplicateEventException.java
+├── handler/
+│   └── GlobalExceptionHandler.java
 └── BackendApplication.java
+
+src/test/java/com/revrecon/backend/
+└── controller/
+    └── UsageEventControllerTest.java
 ```
 
 **Data flow:**
@@ -79,10 +86,14 @@ HTTP Response ← Controller ← Service ← Repository
 
 **Exception flow:**
 ```
+Validation error (invalid request body)
+    → MethodArgumentNotValidException (Spring)
+        → GlobalExceptionHandler → 400 Bad Request (UsageEventErrorResponse)
+
 PostgreSQL constraint violation
     → DuplicateKeyException (Spring)
         → DuplicateEventException (Domain, caught in Repository)
-            → Controller catches → 409 Conflict
+            → GlobalExceptionHandler → 409 Conflict (UsageEventErrorResponse)
 ```
 
 **Refactor triggers** (when to reconsider architecture):
