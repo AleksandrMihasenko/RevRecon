@@ -69,6 +69,10 @@ Detect where usage and billing don't match and explain why.
 - [x] Usage events ingestion (POST /api/usage-events)
 - [x] Idempotency handling (409 Conflict on duplicate)
 - [x] Audit fields (created_at, updated_at)
+- [x] Request DTO validation for usage ingestion
+- [x] Structured error responses for usage ingestion
+- [x] Global exception handling for 400/409 on usage ingestion
+- [x] Controller tests for POST /api/usage-events (201, 400, 409)
 - [ ] Billing records ingestion (POST /billing)
 - [ ] Basic aggregation queries
 - [ ] Integration tests for ingestion endpoints
@@ -208,9 +212,9 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 ## Current Focus
 
-**Phase 1:** Test POST /usage-events → POST /billing endpoint → Integration tests
+**Phase 1:** POST /billing endpoint → Integration tests for ingestion flows
 
 ---
 
-**Last Updated:** 19 April 2026
-**Status:** Phase 1 in progress — first endpoint done, need to test and add billing endpoint
+**Last Updated:** 25 April 2026
+**Status:** Phase 1 in progress — usage ingestion endpoint validated and controller-tested, billing endpoint next

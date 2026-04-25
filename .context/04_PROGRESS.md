@@ -35,6 +35,8 @@
 | Repositories | ✅ |
 | Exception hierarchy | ✅ |
 | **POST /usage-events** | ✅ |
+| UsageEvent validation + error handling | ✅ |
+| UsageEvent controller tests | ✅ |
 | POST /billing | 🔴 TODO |
 
 ---
@@ -96,6 +98,7 @@
 |------|--------|
 | UsageEventRequest | ✅ |
 | UsageEventResponse | ✅ |
+| UsageEventErrorResponse | ✅ |
 
 ### API 🟡 IN PROGRESS
 | Task | Status |
@@ -103,6 +106,9 @@
 | POST /api/usage-events | ✅ |
 | 201 Created response | ✅ |
 | 409 Conflict on duplicate | ✅ |
+| DTO validation on POST /api/usage-events | ✅ |
+| Global exception handler for usage ingestion | ✅ |
+| Structured error responses for 400/409 | ✅ |
 | POST /billing (billing records) | 🔴 TODO |
 
 ### Queries
@@ -115,8 +121,9 @@
 | Task | Status |
 |------|--------|
 | Integration tests base | 🔴 TODO |
-| Tests per endpoint | 🔴 TODO |
-| Idempotency test | 🔴 TODO |
+| Controller tests for POST /api/usage-events | ✅ |
+| Idempotency test (controller level) | ✅ |
+| Integration tests per endpoint | 🔴 TODO |
 
 ---
 
@@ -227,6 +234,24 @@
 - [ ] POST /billing endpoint
 - [ ] Integration tests
 
+### Week 5: 21-25 April 2026
+
+**Done:**
+- [x] Clarified UsageEvent domain rules in docs
+- [x] Added DTO validation to UsageEventRequest
+- [x] Added UsageEventErrorResponse DTO
+- [x] Moved duplicate handling to GlobalExceptionHandler
+- [x] Added validation error handling for 400 responses
+- [x] Added controller tests for POST /api/usage-events
+- [x] Covered 3 scenarios: 201 Created, 400 Bad Request, 409 Conflict
+
+**Learned:**
+- Request validation belongs at the controller boundary, not in the service
+- Response DTOs should not carry request-validation annotations
+- Global exception handling keeps controller success flow clean
+- In controller tests, mock the service, not the repository
+- Invalid requests should fail before the service layer is called
+
 ---
 
-**Last Updated:** 5 April 2026
+**Last Updated:** 25 April 2026
