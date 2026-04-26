@@ -1,4 +1,4 @@
-# ADR-001: Initial Architecture Choice
+# ADR-0001: Initial Architecture Choice
 
 **Date:** 2026-03-22  
 **Status:** Accepted
@@ -18,11 +18,6 @@ The current goal is to explore real billing discrepancy scenarios and build work
 
 At this stage, the project is still small, exploratory, and built by a single developer.  
 The main priority is to ship scenarios fast, learn from them, and keep the codebase structured enough to evolve later.
-
-## Problem
-
-[What specific problem are we solving with this decision?
-Why can't we just write code without thinking about architecture?]
 
 ## Options Considered
 

@@ -11,7 +11,8 @@ What is the issue that we're seeing that is motivating this decision or change?
 
 ## Problem
 
-Specific problem we need to solve.
+[What specific problem are we solving with this decision?
+Why can't we just write code without thinking about architecture?]
 
 ## Options Considered
 
