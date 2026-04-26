@@ -37,7 +37,7 @@
 | **POST /usage-events** | ✅ |
 | UsageEvent validation + error handling | ✅ |
 | UsageEvent controller tests | ✅ |
-| POST /billing | 🔴 TODO |
+| POST /billing | 🟡 In Progress |
 
 ---
 
@@ -99,6 +99,8 @@
 | UsageEventRequest | ✅ |
 | UsageEventResponse | ✅ |
 | UsageEventErrorResponse | ✅ |
+| BillingRecordRequest | ✅ |
+| BillingRecordResponse | ✅ |
 
 ### API 🟡 IN PROGRESS
 | Task | Status |
@@ -109,7 +111,11 @@
 | DTO validation on POST /api/usage-events | ✅ |
 | Global exception handler for usage ingestion | ✅ |
 | Structured error responses for 400/409 | ✅ |
-| POST /billing (billing records) | 🔴 TODO |
+| POST /billing (billing records) | 🟡 In Progress |
+| Billing idempotency key design (ADR-0002) | ✅ |
+| Billing DTO validation | ✅ |
+| Billing controller tests skeleton | ✅ |
+| Billing invalid period error path | 🟡 In Progress |
 
 ### Queries
 | Task | Status |
@@ -123,6 +129,7 @@
 | Integration tests base | 🔴 TODO |
 | Controller tests for POST /api/usage-events | ✅ |
 | Idempotency test (controller level) | ✅ |
+| Controller tests for POST /api/billing | 🟡 In Progress |
 | Integration tests per endpoint | 🔴 TODO |
 
 ---
@@ -143,6 +150,7 @@
 |----------|-------|--------|
 | Design usage-based billing data model | 1 | ✅ (can explain) |
 | How to prevent duplicate billing events? | 1 | ✅ (idempotency_key + 409) |
+| How to distinguish retry identity vs business identity? | 1 | ✅ (can explain) |
 | SQL: calculate total usage per customer | 1 | 🔴 |
 | INSERT vs UPDATE separation in billing | 1 | ✅ (can explain why) |
 | Exception handling strategy | 1 | ✅ (domain vs technical) |
@@ -252,6 +260,33 @@
 - In controller tests, mock the service, not the repository
 - Invalid requests should fail before the service layer is called
 
+### Week 6: 26 April 2026
+
+**Done:**
+- [x] ADR-0002: retry protection and duplicate prevention choice
+- [x] Decided billing ingestion uses caller-generated `idempotencyKey`
+- [x] Chose `409 Conflict` on duplicate billing idempotency key
+- [x] Added `idempotency_key` to `billing_records` schema design
+- [x] Added `BillingRecordRequest` and `BillingRecordResponse`
+- [x] Added `BillingController` and `BillingRecordService` skeletons
+- [x] Aligned `BillingRecordRepository.insert()` with `RETURNING *`
+- [x] Added controller tests for billing scenarios: 201, 400 validation, 409 duplicate, 400 invalid period
+- [x] Added `InvalidBillingPeriodException`
+- [x] Added handler path for invalid billing period
+
+**Refactoring / cleanup next:**
+- [ ] Normalize error DTO naming (`UsageEventErrorResponse` vs billing-specific error response)
+- [ ] Decide whether to keep one generic API error DTO across endpoints
+- [ ] Wire real period validation in `BillingRecordService`
+- [ ] Finish billing endpoint implementation until controller tests pass end-to-end
+- [ ] Consider renaming `DuplicateEventException` to a more generic duplicate-ingestion exception later
+
+**Learned:**
+- Request shape validation and business-rule validation are different concerns
+- Duplicate request handling and invalid period handling must be tested as separate paths
+- Service-exception tests need fully valid JSON so controller validation does not short-circuit them
+- Repository mapping must stay aligned with domain constructor order, especially after adding fields like `idempotencyKey`
+
 ---
 
-**Last Updated:** 25 April 2026
+**Last Updated:** 26 April 2026

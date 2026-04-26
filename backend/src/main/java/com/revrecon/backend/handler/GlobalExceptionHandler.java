@@ -1,7 +1,9 @@
 package com.revrecon.backend.handler;
 
+import com.revrecon.backend.dto.BillingRecordErrorResponse;
 import com.revrecon.backend.dto.UsageEventErrorResponse;
 import com.revrecon.backend.exception.DuplicateEventException;
+import com.revrecon.backend.exception.InvalidBillingPeriodException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,6 +37,16 @@ public class GlobalExceptionHandler {
 
         error.setCode("INVALID_REQUEST");
         error.setMessage(errorMessage);
+        error.setTimestamp(Instant.now());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidBillingPeriodException.class)
+    public ResponseEntity<BillingRecordErrorResponse> handleInvalidBillingPeriodException(InvalidBillingPeriodException e) {
+        BillingRecordErrorResponse error = new BillingRecordErrorResponse();
+        error.setCode("INVALID_BILLING_PERIOD");
+        error.setMessage(e.getMessage());
         error.setTimestamp(Instant.now());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);

@@ -74,6 +74,7 @@ Detect where usage and billing don't match and explain why.
 - [x] Global exception handling for 400/409 on usage ingestion
 - [x] Controller tests for POST /api/usage-events (201, 400, 409)
 - [ ] Billing records ingestion (POST /billing)
+  Current state: DTOs, schema direction, controller skeleton, controller tests, and billing-period exception path are in progress
 - [ ] Basic aggregation queries
 - [ ] Integration tests for ingestion endpoints
 
@@ -205,6 +206,7 @@ Detect where usage and billing don't match and explain why.
 | Separate Request/Response DTOs | Different fields, versioning flexibility | 5 Apr 2026 |
 | RETURNING * for insert | One query, get full entity back | 5 Apr 2026 |
 | Positioning: Billing & Revenue Systems | Market-validated niche, entry point | 19 Apr 2026 |
+| Billing idempotency with 409 on duplicate | Simpler retry-protection model for Phase 1 learning | 26 Apr 2026 |
 
 Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
@@ -212,9 +214,9 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 ## Current Focus
 
-**Phase 1:** POST /billing endpoint → Integration tests for ingestion flows
+**Phase 1:** Finish POST /billing endpoint implementation, wire real billing-period validation in service, then move to integration tests for ingestion flows
 
 ---
 
-**Last Updated:** 25 April 2026
-**Status:** Phase 1 in progress — usage ingestion endpoint validated and controller-tested, billing endpoint next
+**Last Updated:** 26 April 2026
+**Status:** Phase 1 in progress — usage ingestion endpoint validated and controller-tested; billing ingestion design and controller test coverage are in progress

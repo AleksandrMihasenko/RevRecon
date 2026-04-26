@@ -1,9 +1,9 @@
-package com.revrecon.backend.model;
+package com.revrecon.backend.dto;
 
+import com.revrecon.backend.model.BillingRecordStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -11,8 +11,7 @@ import java.time.Instant;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BillingRecord {
-    @Id
+public class BillingRecordResponse {
     private Long id;
     private String idempotencyKey;
     private Long customerId;

@@ -42,6 +42,7 @@ CREATE TYPE billing_status AS ENUM ('draft', 'open', 'paid', 'voided');
 
 CREATE TABLE billing_records (
                                  id SERIAL PRIMARY KEY,
+                                 idempotency_key VARCHAR(255) NOT NULL UNIQUE,
                                  customer_id INTEGER NOT NULL REFERENCES customers(id),
                                  period_start TIMESTAMPTZ NOT NULL,
                                  period_end TIMESTAMPTZ NOT NULL,
