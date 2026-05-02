@@ -154,7 +154,6 @@ public class BillingControllerTest {
                         .content(requestBody))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("INVALID_BILLING_PERIOD"))
-                .andExpect(jsonPath("$.message").value("periodStart must be before periodEnd"));
+                .andExpect(jsonPath("$.message").value("periodStart must not be after periodEnd"));
     }
 }
-

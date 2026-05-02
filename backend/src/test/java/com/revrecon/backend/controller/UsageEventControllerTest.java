@@ -1,5 +1,6 @@
 package com.revrecon.backend.controller;
 
+import com.revrecon.backend.controller.UsageEventController;
 import com.revrecon.backend.dto.UsageEventRequest;
 import com.revrecon.backend.dto.UsageEventResponse;
 import com.revrecon.backend.exception.DuplicateEventException;
@@ -120,4 +121,3 @@ public class UsageEventControllerTest {
                 .andExpect(jsonPath("$.message").value("Event with idempotency_key already exists: evt-123"));
     }
 }
-

@@ -2,6 +2,7 @@ package com.revrecon.backend.service;
 
 import com.revrecon.backend.dto.BillingRecordRequest;
 import com.revrecon.backend.dto.BillingRecordResponse;
+import com.revrecon.backend.exception.InvalidBillingPeriodException;
 import com.revrecon.backend.model.BillingRecord;
 import com.revrecon.backend.repository.BillingRecordRepository;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ public class BillingRecordService {
     }
 
     public BillingRecordResponse postBillingRecords(BillingRecordRequest billingRecordRequest) {
+        validateBillingRecordPeriods(billingRecordRequest);
+
         BillingRecord billingRecord = new BillingRecord();
         billingRecord.setIdempotencyKey(billingRecordRequest.getIdempotencyKey());
         billingRecord.setCustomerId(billingRecordRequest.getCustomerId());
@@ -36,6 +39,12 @@ public class BillingRecordService {
         response.setCreatedAt(savedBillingRecord.getCreatedAt());
         response.setUpdatedAt(savedBillingRecord.getUpdatedAt());
         return response;
+    }
+
+    private void validateBillingRecordPeriods(BillingRecordRequest billingRecordRequest) {
+        if (billingRecordRequest.getPeriodStart().isAfter(billingRecordRequest.getPeriodEnd())) {
+            throw new InvalidBillingPeriodException();
+        }
     }
 }
 
