@@ -1,6 +1,6 @@
 # Architecture Docs
 
-**Updated:** 25 April 2026
+**Updated:** 2 May 2026
 
 ---
 
@@ -40,9 +40,11 @@
 ```
 com.revrecon.backend/
 ├── controller/
-│   └── UsageEventController.java
+│   ├── UsageEventController.java
+│   └── BillingController.java
 ├── service/
-│   └── UsageEventService.java
+│   ├── UsageEventService.java
+│   └── BillingRecordService.java
 ├── repository/
 │   ├── CustomerRepository.java
 │   ├── PlanRepository.java
@@ -60,17 +62,24 @@ com.revrecon.backend/
 ├── dto/
 │   ├── UsageEventRequest.java
 │   ├── UsageEventResponse.java
-│   └── UsageEventErrorResponse.java
+│   ├── UsageEventErrorResponse.java
+│   ├── BillingRecordRequest.java
+│   ├── BillingRecordResponse.java
+│   └── BillingRecordErrorResponse.java
 ├── exception/
 │   ├── RevReconException.java
-│   └── DuplicateEventException.java
+│   ├── DuplicateEventException.java
+│   └── InvalidBillingPeriodException.java
 ├── handler/
 │   └── GlobalExceptionHandler.java
 └── BackendApplication.java
 
 src/test/java/com/revrecon/backend/
-└── controller/
-    └── UsageEventControllerTest.java
+├── controller/
+│   ├── UsageEventControllerTest.java
+│   └── BillingControllerTest.java
+└── service/
+    └── BillingRecordServiceTest.java
 ```
 
 **Data flow:**
@@ -94,6 +103,10 @@ PostgreSQL constraint violation
     → DuplicateKeyException (Spring)
         → DuplicateEventException (Domain, caught in Repository)
             → GlobalExceptionHandler → 409 Conflict (UsageEventErrorResponse)
+
+Billing period business rule violation
+    → InvalidBillingPeriodException (Domain, thrown in Service)
+        → GlobalExceptionHandler → 400 Bad Request (BillingRecordErrorResponse)
 ```
 
 **Refactor triggers** (when to reconsider architecture):
@@ -101,3 +114,9 @@ PostgreSQL constraint violation
 - Changing data source
 - Unit tests become painful
 - Business logic leaks to Controller
+
+## Current Focus
+
+- Keep the write path simple and explicit for usage and billing ingestion
+- Add the first read-side aggregation queries before moving into reconciliation
+- Delay larger architectural changes until Phase 2 pain is visible

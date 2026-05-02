@@ -37,7 +37,7 @@
 | **POST /usage-events** | ✅ |
 | UsageEvent validation + error handling | ✅ |
 | UsageEvent controller tests | ✅ |
-| POST /billing | 🟡 In Progress |
+| POST /billing | ✅ |
 
 ---
 
@@ -111,11 +111,12 @@
 | DTO validation on POST /api/usage-events | ✅ |
 | Global exception handler for usage ingestion | ✅ |
 | Structured error responses for 400/409 | ✅ |
-| POST /billing (billing records) | 🟡 In Progress |
+| POST /api/billing (billing records) | ✅ |
 | Billing idempotency key design (ADR-0002) | ✅ |
 | Billing DTO validation | ✅ |
-| Billing controller tests skeleton | ✅ |
-| Billing invalid period error path | 🟡 In Progress |
+| Billing controller tests | ✅ |
+| Billing invalid period error path | ✅ |
+| Billing service unit tests | ✅ |
 
 ### Queries
 | Task | Status |
@@ -126,10 +127,11 @@
 ### Tests
 | Task | Status |
 |------|--------|
+| BillingRecordService unit tests | ✅ |
 | Integration tests base | 🔴 TODO |
 | Controller tests for POST /api/usage-events | ✅ |
 | Idempotency test (controller level) | ✅ |
-| Controller tests for POST /api/billing | 🟡 In Progress |
+| Controller tests for POST /api/billing | ✅ |
 | Integration tests per endpoint | 🔴 TODO |
 
 ---
@@ -237,7 +239,7 @@
 - ResponseEntity for HTTP codes (201 Created, 409 Conflict)
 - Lombok @Data creates void setters — can't chain, use constructor or separate calls
 
-**Next:**
+**Next at that point:**
 - [ ] Run and test POST /usage-events
 - [ ] POST /billing endpoint
 - [ ] Integration tests
@@ -258,6 +260,29 @@
 - Response DTOs should not carry request-validation annotations
 - Global exception handling keeps controller success flow clean
 - In controller tests, mock the service, not the repository
+
+### Week 6: 1-2 May 2026
+
+**Done:**
+- [x] Finished `POST /api/billing` service/controller flow
+- [x] Added billing controller coverage for 201, 400, 409, and invalid billing period
+- [x] Added `BillingRecordService` unit tests
+- [x] Covered valid billing save, duplicate propagation, invalid period rejection, and equal period boundaries
+- [x] Refactored service tests with small test-data helpers
+
+**Learned:**
+- Service tests should verify business behavior, not HTTP status codes
+- In unit tests, mock the dependency and keep the service real
+- `assertThrows(...)` is both the action and the assertion for exception paths
+- A happy-path service test should validate returned data, not only dependency calls
+
+## Current Next Steps
+
+1. Add basic aggregation queries:
+   total usage per customer and expected vs billed totals.
+2. Decide the minimal read path for Phase 1:
+   query method only or endpoint plus query.
+3. Add integration tests for ingestion flows once Phase 1 behavior is stable enough.
 - Invalid requests should fail before the service layer is called
 
 ### Week 6: 26 April 2026
