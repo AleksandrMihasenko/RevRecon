@@ -38,6 +38,7 @@
 | UsageEvent validation + error handling | ✅ |
 | UsageEvent controller tests | ✅ |
 | POST /billing | ✅ |
+| GET /usage-billing-summary | ✅ |
 
 ---
 
@@ -101,6 +102,8 @@
 | UsageEventErrorResponse | ✅ |
 | BillingRecordRequest | ✅ |
 | BillingRecordResponse | ✅ |
+| UsageBillingSummaryResponse | ✅ |
+| UsageByMetricResponse | ✅ |
 
 ### API 🟡 IN PROGRESS
 | Task | Status |
@@ -117,17 +120,22 @@
 | Billing controller tests | ✅ |
 | Billing invalid period error path | ✅ |
 | Billing service unit tests | ✅ |
+| GET /api/usage-billing-summary | ✅ |
+| UsageBillingSummaryService | ✅ |
 
 ### Queries
 | Task | Status |
 |------|--------|
-| Total usage per customer | 🔴 TODO |
+| Usage totals by metric for customer + period | ✅ |
+| Billed total for customer + exact period | ✅ |
+| Combined usage/billing summary read path | ✅ |
 | Expected vs billed totals | 🔴 TODO |
 
 ### Tests
 | Task | Status |
 |------|--------|
 | BillingRecordService unit tests | ✅ |
+| UsageBillingSummary tests | 🔴 TODO |
 | Integration tests base | 🔴 TODO |
 | Controller tests for POST /api/usage-events | ✅ |
 | Idempotency test (controller level) | ✅ |
@@ -153,7 +161,7 @@
 | Design usage-based billing data model | 1 | ✅ (can explain) |
 | How to prevent duplicate billing events? | 1 | ✅ (idempotency_key + 409) |
 | How to distinguish retry identity vs business identity? | 1 | ✅ (can explain) |
-| SQL: calculate total usage per customer | 1 | 🔴 |
+| SQL: calculate total usage per customer | 1 | ✅ (group by metric + period) |
 | INSERT vs UPDATE separation in billing | 1 | ✅ (can explain why) |
 | Exception handling strategy | 1 | ✅ (domain vs technical) |
 | DTO vs Entity — why separate? | 1 | ✅ (can explain) |
@@ -238,6 +246,23 @@
 - RETURNING * in PostgreSQL: get inserted row in one query
 - ResponseEntity for HTTP codes (201 Created, 409 Conflict)
 - Lombok @Data creates void setters — can't chain, use constructor or separate calls
+
+### Week 7: 3 May 2026
+
+**Done:**
+- [x] Added first read-side aggregation queries
+- [x] Added `GET /api/usage-billing-summary`
+- [x] Added `UsageBillingSummaryService`
+- [x] Added `UsageMetricTotal` aggregation model
+- [x] Added usage aggregation by metric in `UsageEventRepository`
+- [x] Added billed total aggregation in `BillingRecordRepository`
+- [x] Compile-checked the new summary flow
+
+**Learned:**
+- One `total usage` number is misleading when metrics use different units
+- `GROUP BY metric` belongs in SQL, not in Java loops
+- `COALESCE(SUM(...), 0)` keeps repository contracts cleaner than leaking `NULL`
+- A read-side summary can justify its own service when it orchestrates multiple repositories
 
 **Next at that point:**
 - [ ] Run and test POST /usage-events

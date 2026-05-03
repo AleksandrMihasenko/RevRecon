@@ -13,6 +13,7 @@ It focuses on a simple question:
 ## What it does
 
 - Ingests usage events and billing records
+- Returns usage-by-metric and billed-total summaries for a customer period
 - Compares expected vs actual billing
 - Detects mismatches (missing, duplicated, wrong price, timing issues)
 - Explains why they happen
@@ -56,9 +57,11 @@ RevRecon/
 
 - [x] Project setup
 - [x] ADR-001: Layered Architecture
-- [ ] Data model (Customer, Plan, UsageEvent, BillingRecord)
-- [ ] Ingestion endpoints
-- [ ] Reconciliation logic
+- [x] Data model (Customer, Plan, UsageEvent, BillingRecord)
+- [x] Ingestion endpoints
+- [x] First summary read endpoint
+- [ ] Phase 1 tests
+- [ ] Phase 2 reconciliation logic
 
 ## Documentation
 

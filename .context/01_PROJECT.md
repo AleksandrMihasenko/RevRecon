@@ -77,10 +77,11 @@ Detect where usage and billing don't match and explain why.
 - [x] Billing DTO validation and domain error path for invalid billing periods
 - [x] Controller tests for POST /api/billing (201, 400, 409, invalid period)
 - [x] BillingRecordService unit tests for happy path, duplicate, invalid period, and equal boundaries
-- [ ] Basic aggregation queries
+- [x] Basic aggregation queries
+- [x] Read-side summary endpoint (`GET /api/usage-billing-summary`)
 - [ ] Integration tests for ingestion endpoints
 
-**Milestone:** Can ingest usage and billing data and calculate expected vs billed totals.
+**Milestone:** Can ingest usage and billing data and read back usage-by-metric plus billed totals for a period.
 
 **Learning focus:** Domain modeling, REST, persistence, SQL basics, idempotency.
 
@@ -216,9 +217,9 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 ## Current Focus
 
-**Phase 1:** Add the first aggregation queries, then introduce integration tests for ingestion flows after the Phase 1 read behavior is defined
+**Phase 1:** Add tests for the new summary endpoint and ingestion flows, then move into Phase 2 reconciliation logic
 
 ---
 
-**Last Updated:** 2 May 2026
-**Status:** Phase 1 in progress — both ingestion endpoints exist and have controller/service coverage; the main remaining work is aggregation queries and integration tests
+**Last Updated:** 3 May 2026
+**Status:** Phase 1 in progress — ingestion endpoints and the first summary read path exist; the main remaining work is tests and Phase 2 comparison logic

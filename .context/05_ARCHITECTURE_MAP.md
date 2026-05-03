@@ -1,6 +1,6 @@
 # Architecture Docs
 
-**Updated:** 2 May 2026
+**Updated:** 3 May 2026
 
 ---
 
@@ -41,10 +41,12 @@
 com.revrecon.backend/
 ├── controller/
 │   ├── UsageEventController.java
-│   └── BillingController.java
+│   ├── BillingController.java
+│   └── UsageBillingSummaryController.java
 ├── service/
 │   ├── UsageEventService.java
-│   └── BillingRecordService.java
+│   ├── BillingRecordService.java
+│   └── UsageBillingSummaryService.java
 ├── repository/
 │   ├── CustomerRepository.java
 │   ├── PlanRepository.java
@@ -57,6 +59,7 @@ com.revrecon.backend/
 │   ├── Subscription.java
 │   ├── SubscriptionStatus.java
 │   ├── UsageEvent.java
+│   ├── UsageMetricTotal.java
 │   ├── BillingRecord.java
 │   └── BillingRecordStatus.java
 ├── dto/
@@ -65,7 +68,9 @@ com.revrecon.backend/
 │   ├── UsageEventErrorResponse.java
 │   ├── BillingRecordRequest.java
 │   ├── BillingRecordResponse.java
-│   └── BillingRecordErrorResponse.java
+│   ├── BillingRecordErrorResponse.java
+│   ├── UsageBillingSummaryResponse.java
+│   └── UsageByMetricResponse.java
 ├── exception/
 │   ├── RevReconException.java
 │   ├── DuplicateEventException.java
@@ -107,6 +112,10 @@ PostgreSQL constraint violation
 Billing period business rule violation
     → InvalidBillingPeriodException (Domain, thrown in Service)
         → GlobalExceptionHandler → 400 Bad Request (BillingRecordErrorResponse)
+
+Summary period business rule violation
+    → InvalidBillingPeriodException (Domain, thrown in Service)
+        → GlobalExceptionHandler → 400 Bad Request
 ```
 
 **Refactor triggers** (when to reconsider architecture):
@@ -118,5 +127,5 @@ Billing period business rule violation
 ## Current Focus
 
 - Keep the write path simple and explicit for usage and billing ingestion
-- Add the first read-side aggregation queries before moving into reconciliation
+- Keep the first read path simple: aggregate usage by metric and billed total by exact period
 - Delay larger architectural changes until Phase 2 pain is visible

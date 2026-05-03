@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Last Updated:** 28 March 2026  
-**Status:** Phase 1 — Data Model Complete
+**Last Updated:** 3 May 2026  
+**Status:** Phase 1 — Ingestion and First Read Path Complete
 
 ---
 
@@ -144,8 +144,10 @@ com.revrecon.backend/
 
 | Component | Responsibility | Phase | Status |
 |-----------|---------------|-------|--------|
-| UsageController | POST /events, GET /usage | 1 | 🔴 TODO |
-| BillingController | POST /billing, GET /billing | 1 | 🔴 TODO |
+| UsageEventController | POST /usage-events | 1 | ✅ Done |
+| BillingController | POST /billing | 1 | ✅ Done |
+| UsageBillingSummaryController | GET /usage-billing-summary | 1 | ✅ Done |
+| UsageBillingSummaryService | Aggregate usage + billed totals for period | 1 | ✅ Done |
 | DiscrepancyController | GET /discrepancies | 2 | 🔴 TODO |
 | ReconciliationService | Compare usage vs billing | 2 | 🔴 TODO |
 | DiscrepancyDetector | Find and classify issues | 2 | 🔴 TODO |
@@ -156,23 +158,15 @@ com.revrecon.backend/
 ## Data Flow
 
 ```
-Usage Event 
-    ↓ POST /events
-UsageEventRepository
+GET /api/usage-billing-summary
     ↓
-    ├──────────────────────┐
-    ↓                      ↓
-BillingRecord      ReconciliationService
-    ↓                      ↓
-    └──────────────────────┤
-                           ↓
-                    DiscrepancyDetector
-                           ↓
-                      Discrepancy
-                           ↓
-                  ExplainabilityEngine
-                           ↓
-                      Explanation
+UsageBillingSummaryController
+    ↓
+UsageBillingSummaryService
+    ├── UsageEventRepository.getUsageTotalsByMetric(...)
+    └── BillingRecordRepository.getBilledTotal(...)
+    ↓
+UsageBillingSummaryResponse
 ```
 
 ---
@@ -235,3 +229,4 @@ Location: `/docs/architecture/diagrams/`
 | 22 Mar 2026 | Spring Boot 4.0.4 + Java 21 setup | — |
 | 22 Mar 2026 | Package structure created | — |
 | 28 Mar 2026 | Data model (V1 migration) | — |
+| 3 May 2026 | First read-side summary endpoint and aggregation queries | — |
