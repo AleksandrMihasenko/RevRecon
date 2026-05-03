@@ -2,13 +2,16 @@ package com.revrecon.backend.repository;
 
 import com.revrecon.backend.exception.DuplicateEventException;
 import com.revrecon.backend.model.UsageEvent;
+import com.revrecon.backend.model.UsageMetricTotal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -113,5 +116,22 @@ public class UsageEventRepository {
         } catch (DuplicateKeyException e) {
             throw new DuplicateEventException(event.getIdempotencyKey());
         }
+    }
+
+    public List<UsageMetricTotal> getUsageTotalsByMetric(Long customerId, Instant periodStart, Instant periodEnd) {
+        String sql = "SELECT metric, COALESCE(SUM(quantity), 0) as total_quantity " +
+                "FROM usage_events " +
+                "WHERE customer_id = :customerId AND timestamp >= :periodStart AND timestamp < :periodEnd " +
+                "GROUP BY metric " +
+                "ORDER BY metric";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("customerId", customerId)
+                .addValue("periodStart", periodStart)
+                .addValue("periodEnd", periodEnd);
+
+        return jdbcTemplate.query(sql, params, (rs, rowNum) -> new UsageMetricTotal(
+                rs.getString("metric"),
+                rs.getBigDecimal("total_quantity")
+        ));
     }
 }

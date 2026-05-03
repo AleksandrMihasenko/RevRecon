@@ -9,7 +9,9 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -134,5 +136,17 @@ public class BillingRecordRepository {
         MapSqlParameterSource params = new MapSqlParameterSource("id", id);
         String sql = "DELETE FROM billing_records WHERE id = :id";
         jdbcTemplate.update(sql, params);
+    }
+
+    public BigDecimal getBilledTotal(Long customerId, Instant periodStart, Instant periodEnd) {
+        String sql = "SELECT COALESCE(SUM(amount), 0) " +
+                "FROM billing_records " +
+                "WHERE customer_id = :customerId AND period_start = :periodStart AND period_end = :periodEnd";
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("customerId", customerId)
+                .addValue("periodStart", periodStart)
+                .addValue("periodEnd", periodEnd);
+
+        return jdbcTemplate.queryForObject(sql, params, BigDecimal.class);
     }
 }
