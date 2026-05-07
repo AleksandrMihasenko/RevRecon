@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Last Updated:** 3 May 2026  
-**Status:** Phase 1 — Ingestion and First Read Path Complete
+**Last Updated:** 7 May 2026
+**Status:** Phase 1 — Functional Scope Complete
 
 ---
 
@@ -18,7 +18,7 @@ RevRecon: Detect where usage and billing don't match and explain why.
 **Approach:** Start with simple Layered Architecture, refactor when pain is felt.
 
 ```
-Phase 1: Layered (Controller → Service → Repository)  ← CURRENT
+Phase 1: Layered (Controller → Service → Repository)  ← COMPLETE
     ↓
 Phase 2+: Feel the pain? → ADR + refactor to Clean/Hexagonal
     ↓
@@ -38,7 +38,7 @@ Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 
 | Phase | Style | Focus | Status |
 |-------|-------|-------|--------|
-| Phase 1 | Layered | Simple start, learn basics | 🟡 In Progress |
+| Phase 1 | Layered | Simple start, learn basics | ✅ Functional Scope Complete |
 | Phase 2 | Evaluate | Do we feel pain? What specifically? | 🔴 TODO |
 | Phase 4 | TBD | One experiment: Event Sourcing / CQRS / Alerts / Simulation | 🔴 TODO |
 
@@ -131,7 +131,7 @@ com.revrecon.backend/
 
 | Style | Description | When to try | Status |
 |-------|-------------|-------------|--------|
-| Layered | Controller → Service → Repository | Phase 1 | 🟡 Current |
+| Layered | Controller → Service → Repository | Phase 1 | ✅ Current |
 | Clean Architecture | Use Cases, Entities, Interfaces | If pain felt | 🔴 TODO |
 | Hexagonal | Ports & Adapters | If pain felt | 🔴 TODO |
 | Event-Driven | Async communication via events | Phase 2+ | 🔴 TODO |
@@ -202,7 +202,7 @@ All documented in `/docs/adr/`
 | Framework | Spring Boot | 4.0.4 | ✅ |
 | Database | PostgreSQL | 16+ | ✅ |
 | Migrations | Flyway | — | ✅ |
-| Testing | JUnit 5, TestContainers | — | 🔴 TODO |
+| Testing | JUnit 5, Mockito; TestContainers planned | — | 🟡 Controller/service tests done |
 | API Docs | Swagger UI | — | 🔴 TODO |
 
 ---
@@ -230,3 +230,4 @@ Location: `/docs/architecture/diagrams/`
 | 22 Mar 2026 | Package structure created | — |
 | 28 Mar 2026 | Data model (V1 migration) | — |
 | 3 May 2026 | First read-side summary endpoint and aggregation queries | — |
+| 7 May 2026 | Summary controller/service tests added; Phase 1 functional scope complete | — |

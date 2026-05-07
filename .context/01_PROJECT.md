@@ -30,7 +30,7 @@ Detect where usage and billing don't match and explain why.
 | Framework | Spring Boot | 4.0.4 | Industry standard |
 | Database | PostgreSQL | 16+ | Reliable, good for learning |
 | Migrations | Flyway | — | Versioned schema |
-| Testing | JUnit 5, TestContainers | — | Integration tests |
+| Testing | JUnit 5, Mockito; TestContainers planned | — | Unit/controller tests now, integration tests later |
 | API docs | Swagger UI | — | Demo without frontend |
 | Data access | Raw JDBC | — | Learning trade-offs vs Spring Data |
 
@@ -79,7 +79,9 @@ Detect where usage and billing don't match and explain why.
 - [x] BillingRecordService unit tests for happy path, duplicate, invalid period, and equal boundaries
 - [x] Basic aggregation queries
 - [x] Read-side summary endpoint (`GET /api/usage-billing-summary`)
-- [ ] Integration tests for ingestion endpoints
+- [x] Controller test for `GET /api/usage-billing-summary`
+- [x] UsageBillingSummaryService unit test
+- [ ] TestContainers integration tests for ingestion and summary SQL queries (moved to deploy prep / Phase 2 follow-up)
 
 **Milestone:** Can ingest usage and billing data and read back usage-by-metric plus billed totals for a period.
 
@@ -173,7 +175,7 @@ Detect where usage and billing don't match and explain why.
 
 | Phase | Priority | Target | Status |
 |-------|----------|--------|--------|
-| Phase 1 | P0 MUST | April 2026 | 🟡 In Progress |
+| Phase 1 | P0 MUST | April 2026 | ✅ Functional Scope Complete |
 | Phase 2 | P0 MUST | May 2026 | 🔴 TODO |
 | Phase 3 | P1 NICE | June 2026 | 🔴 TODO |
 | Phase 4 | P1 NICE | June 2026 | 🔴 TODO |
@@ -217,9 +219,18 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 ## Current Focus
 
-**Phase 1:** Add tests for the new summary endpoint and ingestion flows, then move into Phase 2 reconciliation logic
+**Phase 1:** Functional scope complete. Test coverage exists at controller/service level for ingestion and summary flows.
+
+**Next session start:** Do a short Phase 1 architecture/data-flow review first, then decide deploy prep scope, then move toward deploy before Phase 2 reconciliation logic. TestContainers integration tests are an explicit follow-up, not part of the current Phase 1 closure.
+
+**Next-session checklist:**
+- [ ] Draw current Phase 1 data flow: `POST /api/usage-events`, `POST /api/billing`, `GET /api/usage-billing-summary`
+- [ ] Compare current architecture with the original Phase 1 plan
+- [ ] Decide deploy path: VPS, Docker Compose, hosted backend/database services, or staged local Docker first
+- [ ] Define minimal deploy prep tasks before Phase 2
+- [ ] Start Phase 2 only after deploy direction is clear
 
 ---
 
-**Last Updated:** 3 May 2026
-**Status:** Phase 1 in progress — ingestion endpoints and the first summary read path exist; the main remaining work is tests and Phase 2 comparison logic
+**Last Updated:** 7 May 2026
+**Status:** Phase 1 functional scope complete — ingestion endpoints, idempotency handling, validation/error paths, summary read path, and controller/service tests are in place. Integration tests remain planned for deploy prep / Phase 2 follow-up.

@@ -2,7 +2,7 @@
 
 **Project:** RevRecon
 **Started:** 21 March 2026
-**Current Phase:** Phase 1 — Core Model + Ingestion
+**Current Phase:** Phase 1 — Core Model + Ingestion functional scope complete
 **Market entry:** June 2026
 
 ---
@@ -11,7 +11,7 @@
 
 | Phase | Priority | Status |
 |-------|----------|--------|
-| Phase 1-2 | P0 MUST HAVE | 🟡 In Progress |
+| Phase 1-2 | P0 MUST HAVE | 🟡 Phase 1 complete, Phase 2 next |
 | Phase 3-5 | P1/P2 NICE TO HAVE | 🔴 TODO |
 
 ---
@@ -39,6 +39,7 @@
 | UsageEvent controller tests | ✅ |
 | POST /billing | ✅ |
 | GET /usage-billing-summary | ✅ |
+| Phase 1 controller/service tests | ✅ |
 
 ---
 
@@ -105,7 +106,7 @@
 | UsageBillingSummaryResponse | ✅ |
 | UsageByMetricResponse | ✅ |
 
-### API 🟡 IN PROGRESS
+### API ✅ DONE
 | Task | Status |
 |------|--------|
 | POST /api/usage-events | ✅ |
@@ -135,12 +136,13 @@
 | Task | Status |
 |------|--------|
 | BillingRecordService unit tests | ✅ |
-| UsageBillingSummary tests | 🔴 TODO |
-| Integration tests base | 🔴 TODO |
+| UsageBillingSummary controller test | ✅ |
+| UsageBillingSummary service unit test | ✅ |
+| Integration tests base | 🔴 TODO — moved to deploy prep / Phase 2 follow-up |
 | Controller tests for POST /api/usage-events | ✅ |
 | Idempotency test (controller level) | ✅ |
 | Controller tests for POST /api/billing | ✅ |
-| Integration tests per endpoint | 🔴 TODO |
+| Integration tests per endpoint | 🔴 TODO — moved to deploy prep / Phase 2 follow-up |
 
 ---
 
@@ -173,6 +175,34 @@
 ---
 
 ## Weekly Log
+
+### Week 8: 7 May 2026
+
+**Done:**
+- [x] Added controller test for `GET /api/usage-billing-summary`
+- [x] Covered query parameters, `200 OK`, usage-by-metric response, and billed total response
+- [x] Added `UsageBillingSummaryService` unit test
+- [x] Covered orchestration across `UsageEventRepository` and `BillingRecordRepository`
+- [x] Verified summary mapping from `UsageMetricTotal` to `UsageByMetricResponse`
+- [x] Ran full backend test suite: 13 tests, 0 failures, 0 errors
+- [x] Decided TestContainers integration tests are a follow-up for deploy prep / Phase 2, not a blocker for Phase 1 closure
+
+**Learned:**
+- Controller tests verify HTTP contract; they do not verify SQL or service orchestration
+- Query parameters in `MockMvc` belong inside the request builder via `.param(...)`
+- `jsonPath` must come from `MockMvcResultMatchers`, not `MockRestRequestMatchers`
+- Service unit tests should keep the service real and mock repositories
+- `BigDecimal` assertions should compare against `new BigDecimal("...")`, not floating-point literals
+
+**Environment note:**
+- In the Codex sandbox, `mvn test` can fail because Mockito inline mock maker cannot self-attach on Java 24. Running the same command with elevated permissions succeeds.
+
+**Phase 1 checkpoint:**
+- Functional scope is complete.
+- Controller/service test coverage is complete for current Phase 1 endpoints.
+- TestContainers integration tests remain planned as an explicit follow-up before or during deploy prep.
+
+---
 
 ### Week 1: 21-27 March 2026
 
@@ -303,12 +333,17 @@
 
 ## Current Next Steps
 
-1. Add basic aggregation queries:
-   total usage per customer and expected vs billed totals.
-2. Decide the minimal read path for Phase 1:
-   query method only or endpoint plus query.
-3. Add integration tests for ingestion flows once Phase 1 behavior is stable enough.
-- Invalid requests should fail before the service layer is called
+1. Start next session with Phase 1 architecture/data-flow review:
+   current endpoints, data movement, repositories, and what can break.
+2. Compare current Phase 1 architecture with the original plan:
+   what stayed simple, what became clearer, what should not move into Phase 2 yet.
+3. Decide deploy prep scope:
+   local Docker Compose first, VPS first, or hosted service comparison.
+4. Define minimal deploy prep before Phase 2:
+   run strategy, database config, environment variables, and README run instructions.
+5. Start Phase 2 reconciliation:
+   expected vs billed comparison and first discrepancy scenario.
+6. Add TestContainers integration tests as deploy prep / Phase 2 follow-up.
 
 ### Week 6: 26 April 2026
 

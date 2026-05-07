@@ -53,14 +53,16 @@ RevRecon/
 
 ## Status
 
-**Phase 1: Core Model + Ingestion** — In Progress
+**Phase 1: Core Model + Ingestion** — Functional scope complete
 
 - [x] Project setup
 - [x] ADR-001: Layered Architecture
 - [x] Data model (Customer, Plan, UsageEvent, BillingRecord)
 - [x] Ingestion endpoints
 - [x] First summary read endpoint
-- [ ] Phase 1 tests
+- [x] Phase 1 controller/service tests
+- [ ] TestContainers integration tests
+- [ ] Deploy prep before Phase 2
 - [ ] Phase 2 reconciliation logic
 
 ## Documentation
