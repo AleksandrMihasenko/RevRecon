@@ -157,18 +157,76 @@ com.revrecon.backend/
 
 ## Data Flow
 
-```
-GET /api/usage-billing-summary
-    ↓
-UsageBillingSummaryController
-    ↓
-UsageBillingSummaryService
-    ├── UsageEventRepository.getUsageTotalsByMetric(...)
-    └── BillingRecordRepository.getBilledTotal(...)
-    ↓
-UsageBillingSummaryResponse
-```
+### GET /api/usage-billing-summary
 
+Purpose: return usage totals and billed total for a customer and exact billing period.
+
+Flow:
+1. Client sends `customerId`, `periodStart`, and `periodEnd` as query parameters.
+2. `UsageBillingSummaryController` receives the request.
+3. `UsageBillingSummaryService` validates the period.
+4. Service calls `UsageEventRepository` to aggregate usage by metric for the period.
+5. Service calls `BillingRecordRepository` to calculate billed total for the same exact period.
+6. Usage totals are mapped to `UsageByMetricResponse`.
+7. Service returns `UsageBillingSummaryResponse`.
+8. Controller returns `200 OK`.
+
+Failure cases:
+- Invalid period → `InvalidBillingPeriodException` → `400 Bad Request`
+
+Design notes:
+- Usage is grouped by metric because different metrics may use different units.
+- Billed total uses `COALESCE(SUM(amount), 0)` to avoid leaking SQL `NULL` into service logic.
+- Phase 1 uses exact period matching for billing records to keep the read path simple and predictable.
+- This endpoint is a read-side summary, not reconciliation yet.
+
+### POST /api/usage-events
+
+Purpose: ingest usage events from external systems.
+
+Flow:
+1. Client sends `UsageEventRequest` to `POST /api/usage-events`.
+2. `UsageEventController` validates the request body.
+3. `UsageEventService` maps the request DTO to `UsageEvent`.
+4. `UsageEventRepository` inserts the event using raw SQL via `NamedParameterJdbcTemplate`.
+5. PostgreSQL enforces uniqueness of `idempotency_key`.
+6. On success, `INSERT ... RETURNING *` returns the inserted row.
+7. Repository maps the row back to `UsageEvent`.
+8. Service maps it to `UsageEventResponse`.
+9. Controller returns `201 Created`.
+
+Failure cases:
+- Invalid request body → `400 Bad Request`
+- Duplicate `idempotency_key` → Repository converts `DuplicateKeyException` to `DuplicateEventException` → `GlobalExceptionHandler` returns `409 Conflict`
+
+Design notes:
+- Request/response DTOs keep the API contract separate from database entities.
+- Repository hides infrastructure exceptions and exposes domain exceptions.
+- Database-level uniqueness is used for idempotency protection.
+
+### POST /api/usage-events
+
+Purpose: ingest usage events from external systems.
+
+Flow:
+1. Client sends `UsageEventRequest` to `POST /api/usage-events`.
+2. `UsageEventController` validates the request body.
+3. `UsageEventService` maps the request DTO to `UsageEvent`.
+4. `UsageEventRepository` inserts the event using raw SQL via `NamedParameterJdbcTemplate`.
+5. PostgreSQL enforces uniqueness of `idempotency_key`.
+6. On success, `INSERT ... RETURNING *` returns the inserted row.
+7. Repository maps the row back to `UsageEvent`.
+8. Service maps it to `UsageEventResponse`.
+9. Controller returns `201 Created`.
+
+Failure cases:
+- Invalid request body → `400 Bad Request`
+- Duplicate `idempotency_key` → Repository converts `DuplicateKeyException` to `DuplicateEventException` → `GlobalExceptionHandler` returns `409 Conflict`
+
+Design notes:
+- Request/response DTOs keep the API contract separate from database entities.
+- Repository hides infrastructure exceptions and exposes domain exceptions.
+- Database-level uniqueness is used for idempotency protection.
 ---
 
 ## Production Concerns (Built In)
