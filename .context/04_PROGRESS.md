@@ -174,7 +174,34 @@
 
 ---
 
+
 ## Weekly Log
+
+### Docker / Local Deploy Prep
+
+**Done:**
+- [x] Added backend Dockerfile with multi-stage build
+- [x] Added Docker Compose setup for backend + PostgreSQL
+- [x] Added environment-variable based configuration for local Docker startup
+- [x] Added `.env.example` for local development values
+- [x] Verified backend and PostgreSQL start successfully via Docker Compose
+- [x] Verified backend is reachable from host machine on `localhost:8080`
+- [x] Verified local cleanup flow with `docker-compose down -v`
+
+**Learned:**
+- Dockerfile builds an image; containers run from images
+- Multi-stage builds separate build-time dependencies from runtime dependencies
+- Backend container should stay stateless; PostgreSQL is stateful and needs persistent storage
+- Docker Compose services communicate by service name inside the Compose network
+- `localhost` inside a container refers to the container itself, not another service
+- Docker volumes persist database files outside the container lifecycle
+- `docker-compose down -v` removes local project containers, network, and volumes
+
+**Next:**
+- Keep the current local Docker Compose setup as the baseline runtime
+- Consider adding a health endpoint before hosted deployment
+- Move toward Phase 2 reconciliation/discrepancy detection after documentation is updated
+
 
 ### Week 8: 7 May 2026
 
@@ -374,4 +401,4 @@
 
 ---
 
-**Last Updated:** 26 April 2026
+**Last Updated:** 09 May 2026

@@ -32,6 +32,74 @@ As a result, companies:
 
 This project explores how to detect and understand these problems.
 
+## Running with Docker Compose
+
+RevRecon can be started locally with Docker Compose.
+
+This runs:
+- Spring Boot backend
+- PostgreSQL database
+- Persistent PostgreSQL volume
+
+### Prerequisites
+
+- Docker or Colima
+- Docker Compose
+
+### Environment variables
+
+Create a local env file:
+
+```bash
+cp deploy/env/.env.example deploy/env/.env
+```
+
+Default local values are safe for development and are not production credentials.
+
+### Start the system
+
+From the project root:
+
+```bash
+cd deploy
+
+docker-compose up --build
+```
+
+Backend:
+
+```text
+http://localhost:8080
+```
+
+PostgreSQL:
+
+```text
+localhost:5432
+```
+
+Inside the Docker Compose network the backend connects to PostgreSQL via service name:
+
+```text
+jdbc:postgresql://postgres:5432/revrecon
+```
+
+### Stop and cleanup
+
+From the `deploy` directory:
+
+```bash
+docker-compose down -v
+```
+
+This removes:
+- backend container
+- postgres container
+- compose network
+- postgres volume
+
+Use only for local development cleanup because it removes local database data.
+
 ## Tech Stack
 
 - Java 21

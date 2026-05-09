@@ -236,12 +236,23 @@ TestContainers integration tests remain a follow-up item and are intentionally p
 - [x] Review current Phase 1 data flows for ingestion and summary endpoints
 - [x] Validate architecture understanding against current implementation
 - [ ] Add compact architecture/data-flow documentation for current endpoints
-- [ ] Create backend Dockerfile
-- [ ] Create local Docker Compose setup (backend + PostgreSQL)
-- [ ] Externalize configuration via environment variables
-- [ ] Validate containerized local startup flow
+- [x] Create backend Dockerfile
+- [x] Create local Docker Compose setup (backend + PostgreSQL)
+- [x] Externalize configuration via environment variables
+- [x] Validate containerized local startup flow
 - [ ] Decide future hosted deployment direction (Railway, Render, VPS, etc.)
 - [ ] Begin Phase 2 reconciliation/discrepancy detection after deploy baseline is stable
+
+Current Docker milestone:
+- Backend Dockerfile uses a multi-stage build: Maven/JDK build stage and JRE runtime stage
+- Docker Compose starts backend + PostgreSQL locally
+- PostgreSQL data is stored in a named Docker volume
+- Local env values are documented through `deploy/env/.env.example`
+- Local cleanup is possible with `docker-compose down -v`
+
+Next practical focus:
+- Decide whether to add a lightweight health endpoint before hosted deployment
+- Start Phase 2 reconciliation only after the local deploy baseline is stable
 
 ---
 
@@ -264,5 +275,5 @@ Current deployment strategy:
 Reasoning:
 The goal is not DevOps specialization yet. The current focus is learning how backend systems are packaged, run, debugged, and exposed in realistic environments while keeping the project simple enough to continue Phase 2 reconciliation work.
 
-**Last Updated:** 7 May 2026
+**Last Updated:** 9 May 2026
 **Status:** Phase 1 functional scope complete — ingestion endpoints, idempotency handling, validation/error paths, summary read path, and controller/service tests are in place. Integration tests remain planned for deploy prep / Phase 2 follow-up.
