@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: revrecon-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-revrecon}
+      POSTGRES_USER: ${POSTGRES_USER:-revrecon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-revrecon}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - revrecon-postgres-data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: revrecon-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-revrecon}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-revrecon}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-revrecon}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  revrecon-postgres-data:

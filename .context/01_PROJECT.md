@@ -221,16 +221,48 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 **Phase 1:** Functional scope complete. Test coverage exists at controller/service level for ingestion and summary flows.
 
-**Next session start:** Do a short Phase 1 architecture/data-flow review first, then decide deploy prep scope, then move toward deploy before Phase 2 reconciliation logic. TestContainers integration tests are an explicit follow-up, not part of the current Phase 1 closure.
+**Next session start:** Phase 1 functional scope is complete. Current focus shifts to engineering understanding and deploy preparation before Phase 2 reconciliation logic.
+
+Planned direction:
+- Short architecture/data-flow review for all current ingestion and summary endpoints
+- Minimal architecture documentation update focused on request flow, idempotency, validation, exception handling, and repository boundaries
+- Decide deploy direction and deployment learning scope
+- Implement local Docker Compose setup before hosted deployment exploration
+- Begin Phase 2 reconciliation/discrepancy detection only after deploy baseline exists
+
+TestContainers integration tests remain a follow-up item and are intentionally postponed until deploy preparation and reconciliation work begin.
 
 **Next-session checklist:**
-- [ ] Draw current Phase 1 data flow: `POST /api/usage-events`, `POST /api/billing`, `GET /api/usage-billing-summary`
-- [ ] Compare current architecture with the original Phase 1 plan
-- [ ] Decide deploy path: VPS, Docker Compose, hosted backend/database services, or staged local Docker first
-- [ ] Define minimal deploy prep tasks before Phase 2
-- [ ] Start Phase 2 only after deploy direction is clear
+- [x] Review current Phase 1 data flows for ingestion and summary endpoints
+- [x] Validate architecture understanding against current implementation
+- [ ] Add compact architecture/data-flow documentation for current endpoints
+- [ ] Create backend Dockerfile
+- [ ] Create local Docker Compose setup (backend + PostgreSQL)
+- [ ] Externalize configuration via environment variables
+- [ ] Validate containerized local startup flow
+- [ ] Decide future hosted deployment direction (Railway, Render, VPS, etc.)
+- [ ] Begin Phase 2 reconciliation/discrepancy detection after deploy baseline is stable
 
 ---
+
+## Deployment Learning Goals
+
+| Goal | Why |
+|------|-----|
+| Docker basics | Learn reproducible backend environments |
+| Docker Compose | Run backend + PostgreSQL together |
+| Environment variables | Separate config from code |
+| Container networking | Understand service communication |
+| Hosted deployment | Learn how backend systems are exposed publicly |
+| Logs and runtime debugging | Observe application behavior outside IDE |
+
+Current deployment strategy:
+1. Local Docker Compose first
+2. Hosted deployment second (Railway/Render likely first choice)
+3. VPS/Linux exploration later if needed
+
+Reasoning:
+The goal is not DevOps specialization yet. The current focus is learning how backend systems are packaged, run, debugged, and exposed in realistic environments while keeping the project simple enough to continue Phase 2 reconciliation work.
 
 **Last Updated:** 7 May 2026
 **Status:** Phase 1 functional scope complete — ingestion endpoints, idempotency handling, validation/error paths, summary read path, and controller/service tests are in place. Integration tests remain planned for deploy prep / Phase 2 follow-up.
