@@ -1,6 +1,6 @@
 # Pattern Map
 
-**Last Updated:** 22 March 2026  
+**Last Updated:** 14 May 2026  
 **Purpose:** Document patterns used in RevRecon — where, why, and what alternatives exist.
 
 ---
@@ -44,7 +44,7 @@ For each pattern:
 
 | Pattern | Description | Status | ADR |
 |---------|-------------|--------|-----|
-| Layered | Controller → Service → Repository | 🟡 Current | [ADR-001](../adr/0001-initial-architecture-choice.md) |
+| Layered | Controller → Service → Repository | 🟡 Current | [ADR-001](../ADR/ADR-0001-initial-architecture-choice.md) |
 | Clean Architecture | Use Cases, Entities, Interfaces | 🔴 Later | — |
 | Hexagonal | Ports & Adapters | 🔴 Later | — |
 | Event-Driven | Async communication via events | 🔴 Later | — |
@@ -77,7 +77,7 @@ For each pattern:
 - "Can't understand why complex is needed until you feel pain from simple"
 - Refactor triggers: adding CLI, second data source, painful tests, logic leaking to controller
 
-**Full discussion:** [ADR-001](../adr/0001-initial-architecture-choice.md)
+**Full discussion:** [ADR-001](../ADR/ADR-0001-initial-architecture-choice.md)
 
 ---
 

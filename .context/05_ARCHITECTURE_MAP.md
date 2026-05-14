@@ -1,6 +1,6 @@
 # Architecture Docs
 
-**Updated:** 3 May 2026
+**Updated:** 14 May 2026
 
 ---
 
@@ -18,7 +18,7 @@
 |-------|----------|
 | Architecture overview | [docs/architecture/overview.md](../docs/architecture/overview.md) |
 | Pattern map | [docs/architecture/patterns.md](../docs/architecture/patterns.md) |
-| ADRs | [docs/adr/](../docs/adr/) |
+| ADRs | [docs/ADR/](../docs/ADR/) |
 | Domain glossary | [docs/domain/glossary.md](../docs/domain/glossary.md) |
 | Diagrams | [docs/architecture/diagrams/](../docs/architecture/diagrams/) |
 
@@ -28,7 +28,7 @@
 
 | ADR | Decision | Status |
 |-----|----------|--------|
-| [ADR-001](../docs/adr/0001-initial-architecture-choice.md) | Layered Architecture for Phase 1 | ✅ Accepted |
+| [ADR-001](../docs/ADR/ADR-0001-initial-architecture-choice.md) | Layered Architecture for Phase 1 | ✅ Accepted |
 
 ---
 

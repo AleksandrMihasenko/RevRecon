@@ -1,6 +1,6 @@
 # Architecture Overview
 
-**Last Updated:** 7 May 2026
+**Last Updated:** 14 May 2026
 **Status:** Phase 1 — Functional Scope Complete
 
 ---
@@ -30,7 +30,7 @@ Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 - When adding second data source or replacing DB — that's the moment
 - Document the pain and decision in ADR
 
-**Reference:** [ADR-001: Initial Architecture Choice](../adr/0001-initial-architecture-choice.md) ✅
+**Reference:** [ADR-001: Initial Architecture Choice](../ADR/ADR-0001-initial-architecture-choice.md) ✅
 
 ---
 
@@ -55,7 +55,7 @@ Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 │    (Business logic, orchestration, domain rules)         │
 ├─────────────────────────────────────────────────────────┤
 │                 Repository Layer                         │
-│        (Data access, Spring Data JDBC)                   │
+│        (Data access, raw JDBC + SQL)                     │
 ├─────────────────────────────────────────────────────────┤
 │                    Database                              │
 │                  (PostgreSQL)                            │
@@ -203,30 +203,6 @@ Design notes:
 - Request/response DTOs keep the API contract separate from database entities.
 - Repository hides infrastructure exceptions and exposes domain exceptions.
 - Database-level uniqueness is used for idempotency protection.
-
-### POST /api/usage-events
-
-Purpose: ingest usage events from external systems.
-
-Flow:
-1. Client sends `UsageEventRequest` to `POST /api/usage-events`.
-2. `UsageEventController` validates the request body.
-3. `UsageEventService` maps the request DTO to `UsageEvent`.
-4. `UsageEventRepository` inserts the event using raw SQL via `NamedParameterJdbcTemplate`.
-5. PostgreSQL enforces uniqueness of `idempotency_key`.
-6. On success, `INSERT ... RETURNING *` returns the inserted row.
-7. Repository maps the row back to `UsageEvent`.
-8. Service maps it to `UsageEventResponse`.
-9. Controller returns `201 Created`.
-
-Failure cases:
-- Invalid request body → `400 Bad Request`
-- Duplicate `idempotency_key` → Repository converts `DuplicateKeyException` to `DuplicateEventException` → `GlobalExceptionHandler` returns `409 Conflict`
-
-Design notes:
-- Request/response DTOs keep the API contract separate from database entities.
-- Repository hides infrastructure exceptions and exposes domain exceptions.
-- Database-level uniqueness is used for idempotency protection.
 ---
 
 ## Production Concerns (Built In)
@@ -243,12 +219,12 @@ Design notes:
 
 ## Key Design Decisions
 
-All documented in `/docs/adr/`
+All documented in `/docs/ADR/`
 
 | ADR | Decision | Date | Status |
 |-----|----------|------|--------|
-| [ADR-001](../adr/0001-initial-architecture-choice.md) | Start with Layered, refactor later | 22 Mar 2026 | ✅ Accepted |
-| ADR-002 | Phase 4 experiment choice | TBD | 🔴 TODO |
+| [ADR-001](../ADR/ADR-0001-initial-architecture-choice.md) | Start with Layered, refactor later | 22 Mar 2026 | ✅ Accepted |
+| [ADR-002](../ADR/ADR-0002-retry-protection-and-duplicate-prevention-choice.md) | Retry protection and duplicate prevention | 26 Apr 2026 | ✅ Accepted |
 
 ---
 

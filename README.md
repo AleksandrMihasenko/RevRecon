@@ -136,7 +136,7 @@ RevRecon/
 ## Documentation
 
 - [Architecture Overview](docs/architecture/overview.md)
-- [ADR-001: Initial Architecture Choice](docs/adr/0001-initial-architecture-choice.md)
+- [ADR-001: Initial Architecture Choice](docs/ADR/ADR-0001-initial-architecture-choice.md)
 - [Domain Glossary](docs/domain/glossary.md)
 
 ## License
