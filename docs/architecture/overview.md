@@ -1,7 +1,7 @@
 # Architecture Overview
 
 **Last Updated:** 14 May 2026
-**Status:** Phase 1 — Functional Scope Complete
+**Status:** Phase 1 — Closed
 
 ---
 
@@ -18,7 +18,7 @@ RevRecon: Detect where usage and billing don't match and explain why.
 **Approach:** Start with simple Layered Architecture, refactor when pain is felt.
 
 ```
-Phase 1: Layered (Controller → Service → Repository)  ← COMPLETE
+Phase 1: Layered (Controller → Service → Repository)  ← CLOSED
     ↓
 Phase 2+: Feel the pain? → ADR + refactor to Clean/Hexagonal
     ↓
@@ -38,7 +38,7 @@ Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 
 | Phase | Style | Focus | Status |
 |-------|-------|-------|--------|
-| Phase 1 | Layered | Simple start, learn basics | ✅ Functional Scope Complete |
+| Phase 1 | Layered | Simple start, learn basics | ✅ Closed |
 | Phase 2 | Evaluate | Do we feel pain? What specifically? | 🔴 TODO |
 | Phase 4 | TBD | One experiment: Event Sourcing / CQRS / Alerts / Simulation | 🔴 TODO |
 
@@ -66,6 +66,11 @@ Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 ```
 com.revrecon.backend/
 ├── controller/
+│   ├── HealthController
+│   ├── UsageEventController
+│   ├── BillingController
+│   └── UsageBillingSummaryController
+├── dto/
 ├── service/
 ├── repository/
 └── model/
@@ -148,6 +153,7 @@ com.revrecon.backend/
 | BillingController | POST /billing | 1 | ✅ Done |
 | UsageBillingSummaryController | GET /usage-billing-summary | 1 | ✅ Done |
 | UsageBillingSummaryService | Aggregate usage + billed totals for period | 1 | ✅ Done |
+| HealthController | GET /health lightweight liveness check | 1 / Deploy prep | ✅ Done |
 | DiscrepancyController | GET /discrepancies | 2 | 🔴 TODO |
 | ReconciliationService | Compare usage vs billing | 2 | 🔴 TODO |
 | DiscrepancyDetector | Find and classify issues | 2 | 🔴 TODO |
@@ -156,6 +162,20 @@ com.revrecon.backend/
 ---
 
 ## Data Flow
+
+### GET /api/health
+
+Purpose: lightweight liveness check for local runtime and future deployment checks.
+
+Flow:
+1. Client sends `GET /api/health`.
+2. `HealthController` returns `HealthResponse`.
+3. Controller returns `200 OK` with `{"status":"UP"}`.
+
+Design notes:
+- This is a liveness check, not a readiness check.
+- It does not check PostgreSQL yet.
+- DB readiness or Spring Actuator can be added later if hosted deployment needs stronger operational checks.
 
 ### GET /api/usage-billing-summary
 
@@ -265,3 +285,15 @@ Location: `/docs/architecture/diagrams/`
 | 28 Mar 2026 | Data model (V1 migration) | — |
 | 3 May 2026 | First read-side summary endpoint and aggregation queries | — |
 | 7 May 2026 | Summary controller/service tests added; Phase 1 functional scope complete | — |
+| 14 May 2026 | Health endpoint added; Phase 1 closed | — |
+
+---
+
+## Follow-Up Improvements
+
+These are useful but are not Phase 1 blockers:
+- Run full backend test suite after final documentation updates.
+- Verify `GET /api/health` through Docker Compose.
+- Add TestContainers integration tests for SQL-backed ingestion and summary flows.
+- Decide hosted deployment direction.
+- Consider Spring Actuator or DB readiness checks when deployment requirements become clearer.

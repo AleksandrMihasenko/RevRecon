@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Phase 1 runtime and ingestion flow implemented. Reconciliation/discrepancy detection architecture still evolving.
+**Status:** Phase 1 closed. Reconciliation/discrepancy detection architecture is the next focus.
 
 ---
 
@@ -12,7 +12,8 @@
 │  API Layer                                      │
 │  ├── POST /usage-events (usage ingestion)       │
 │  ├── POST /billing-records (billing ingestion)  │
-│  │  ├── GET /usage-billing-summary              │
+│  ├── GET /usage-billing-summary                 │
+│  ├── GET /health                                │
 │  ├── GET /discrepancies                         │
 │  └── GET /discrepancies/{id}/explain            │
 ├─────────────────────────────────────────────────┤
@@ -64,11 +65,8 @@ Current architecture direction:
 
 | ADR | Decision | Status |
 |-----|----------|------|
-| ADR-001 | Use PostgreSQL as primary relational datastore | Accepted |
-| ADR-002 | Use JDBC repositories instead of ORM for learning lower-level DB interaction | Accepted |
-| ADR-003 | Separate backend and PostgreSQL into independent Docker containers | Accepted |
-| ADR-004 | Use Docker Compose for local runtime orchestration | Accepted |
-| ADR-005 | Treat backend runtime as stateless and PostgreSQL as stateful | Accepted |
+| ADR-001 | Initial architecture choice: layered architecture for Phase 1 | Accepted |
+| ADR-002 | Retry protection and duplicate prevention with idempotency keys and 409 Conflict | Accepted |
 
 ---
 
@@ -94,6 +92,8 @@ Key runtime decisions:
 - PostgreSQL is stateful and stores data in a named Docker volume
 - Backend connects to PostgreSQL using the Compose service name `postgres`
 - Local env values are configured through environment variables and documented in `deploy/env/.env.example`
+- Backend exposes `GET /api/health` as a lightweight liveness check
+- The health endpoint does not check PostgreSQL yet; DB readiness can be added later if deployment needs it
 
 Current cleanup command:
 
@@ -105,4 +105,4 @@ docker-compose down -v
 
 ---
 
-**Last Updated:** 9 May 2026
+**Last Updated:** 14 May 2026

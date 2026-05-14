@@ -42,7 +42,8 @@ com.revrecon.backend/
 ├── controller/
 │   ├── UsageEventController.java
 │   ├── BillingController.java
-│   └── UsageBillingSummaryController.java
+│   ├── UsageBillingSummaryController.java
+│   └── HealthController.java
 ├── service/
 │   ├── UsageEventService.java
 │   ├── BillingRecordService.java
@@ -70,7 +71,8 @@ com.revrecon.backend/
 │   ├── BillingRecordResponse.java
 │   ├── BillingRecordErrorResponse.java
 │   ├── UsageBillingSummaryResponse.java
-│   └── UsageByMetricResponse.java
+│   ├── UsageByMetricResponse.java
+│   └── HealthResponse.java
 ├── exception/
 │   ├── RevReconException.java
 │   ├── DuplicateEventException.java
@@ -82,9 +84,12 @@ com.revrecon.backend/
 src/test/java/com/revrecon/backend/
 ├── controller/
 │   ├── UsageEventControllerTest.java
-│   └── BillingControllerTest.java
+│   ├── BillingControllerTest.java
+│   ├── UsageBillingSummaryControllerTest.java
+│   └── HealthControllerTest.java
 └── service/
-    └── BillingRecordServiceTest.java
+    ├── BillingRecordServiceTest.java
+    └── UsageBillingSummaryServiceTest.java
 ```
 
 **Data flow:**
@@ -126,6 +131,6 @@ Summary period business rule violation
 
 ## Current Focus
 
-- Keep the write path simple and explicit for usage and billing ingestion
-- Keep the first read path simple: aggregate usage by metric and billed total by exact period
-- Delay larger architectural changes until Phase 2 pain is visible
+- Phase 1 is closed: ingestion, summary, local runtime baseline, and health check are in place
+- Start Phase 2 with one concrete reconciliation scenario before designing every discrepancy type
+- Keep larger architectural changes delayed until Phase 2 creates real pain

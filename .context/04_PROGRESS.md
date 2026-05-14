@@ -2,7 +2,7 @@
 
 **Project:** RevRecon
 **Started:** 21 March 2026
-**Current Phase:** Phase 1 — Core Model + Ingestion functional scope complete
+**Current Phase:** Phase 2 next — Phase 1 closed on 14 May 2026
 **Market entry:** June 2026
 
 ---
@@ -11,7 +11,7 @@
 
 | Phase | Priority | Status |
 |-------|----------|--------|
-| Phase 1-2 | P0 MUST HAVE | 🟡 Phase 1 complete, Phase 2 next |
+| Phase 1-2 | P0 MUST HAVE | ✅ Phase 1 closed, Phase 2 next |
 | Phase 3-5 | P1/P2 NICE TO HAVE | 🔴 TODO |
 
 ---
@@ -40,6 +40,8 @@
 | POST /billing | ✅ |
 | GET /usage-billing-summary | ✅ |
 | Phase 1 controller/service tests | ✅ |
+| Local Docker Compose baseline | ✅ |
+| GET /api/health | ✅ |
 
 ---
 
@@ -105,6 +107,7 @@
 | BillingRecordResponse | ✅ |
 | UsageBillingSummaryResponse | ✅ |
 | UsageByMetricResponse | ✅ |
+| HealthResponse | ✅ |
 
 ### API ✅ DONE
 | Task | Status |
@@ -123,6 +126,8 @@
 | Billing service unit tests | ✅ |
 | GET /api/usage-billing-summary | ✅ |
 | UsageBillingSummaryService | ✅ |
+| GET /api/health | ✅ |
+| Health endpoint controller test | ✅ |
 
 ### Queries
 | Task | Status |
@@ -143,6 +148,29 @@
 | Idempotency test (controller level) | ✅ |
 | Controller tests for POST /api/billing | ✅ |
 | Integration tests per endpoint | 🔴 TODO — moved to deploy prep / Phase 2 follow-up |
+
+---
+
+## Phase 1 Closure
+
+**Closed:** 14 May 2026
+
+Phase 1 is closed because the project can:
+- accept usage events and billing records through API endpoints
+- reject duplicate ingestion requests with explicit 409 responses
+- validate request bodies and billing periods
+- return a usage/billing summary for a customer period
+- run locally through Docker Compose with backend + PostgreSQL
+- expose a lightweight liveness endpoint at `GET /api/health`
+- verify current controller/service behavior with tests
+
+Remaining items are intentionally follow-up work, not Phase 1 blockers:
+- TestContainers integration tests for SQL-backed ingestion and summary flows
+- Docker Compose manual check for `GET /api/health`
+- hosted deployment direction decision
+- optional Spring Actuator or DB readiness checks later
+
+Next product/learning focus: Phase 2 reconciliation, starting from one concrete discrepancy scenario.
 
 ---
 
@@ -187,6 +215,9 @@
 - [x] Verified backend and PostgreSQL start successfully via Docker Compose
 - [x] Verified backend is reachable from host machine on `localhost:8080`
 - [x] Verified local cleanup flow with `docker-compose down -v`
+- [x] Added lightweight health endpoint: `GET /api/health`
+- [x] Added `HealthResponse` DTO
+- [x] Added controller test for health endpoint
 
 **Learned:**
 - Dockerfile builds an image; containers run from images
@@ -199,8 +230,8 @@
 
 **Next:**
 - Keep the current local Docker Compose setup as the baseline runtime
-- Consider adding a health endpoint before hosted deployment
-- Move toward Phase 2 reconciliation/discrepancy detection after documentation is updated
+- Verify health endpoint through Docker Compose as a follow-up
+- Move toward Phase 2 reconciliation/discrepancy detection
 
 
 ### Week 8: 7 May 2026
@@ -360,17 +391,13 @@
 
 ## Current Next Steps
 
-1. Start next session with Phase 1 architecture/data-flow review:
-   current endpoints, data movement, repositories, and what can break.
-2. Compare current Phase 1 architecture with the original plan:
-   what stayed simple, what became clearer, what should not move into Phase 2 yet.
-3. Decide deploy prep scope:
-   local Docker Compose first, VPS first, or hosted service comparison.
-4. Define minimal deploy prep before Phase 2:
-   run strategy, database config, environment variables, and README run instructions.
-5. Start Phase 2 reconciliation:
-   expected vs billed comparison and first discrepancy scenario.
-6. Add TestContainers integration tests as deploy prep / Phase 2 follow-up.
+1. Commit Phase 1 closure work cleanly.
+2. Run full backend test suite.
+3. Verify `GET /api/health` through Docker Compose.
+4. Start Phase 2 reconciliation with one concrete scenario, preferably missing usage.
+5. Draw the first reconciliation data flow before code:
+   usage events + billing records + plan prices → expected amount → billed amount → discrepancy.
+6. Add TestContainers integration tests as Phase 2 / deploy follow-up.
 
 ### Week 6: 26 April 2026
 
@@ -401,4 +428,4 @@
 
 ---
 
-**Last Updated:** 09 May 2026
+**Last Updated:** 14 May 2026

@@ -81,9 +81,12 @@ Detect where usage and billing don't match and explain why.
 - [x] Read-side summary endpoint (`GET /api/usage-billing-summary`)
 - [x] Controller test for `GET /api/usage-billing-summary`
 - [x] UsageBillingSummaryService unit test
+- [x] Local Docker Compose runtime baseline
+- [x] Lightweight health endpoint (`GET /api/health`)
+- [x] Controller test for `GET /api/health`
 - [ ] TestContainers integration tests for ingestion and summary SQL queries (moved to deploy prep / Phase 2 follow-up)
 
-**Milestone:** Can ingest usage and billing data and read back usage-by-metric plus billed totals for a period.
+**Milestone:** Can ingest usage and billing data, read back usage-by-metric plus billed totals for a period, and verify the backend is alive through a lightweight health endpoint.
 
 **Learning focus:** Domain modeling, REST, persistence, SQL basics, idempotency.
 
@@ -175,7 +178,7 @@ Detect where usage and billing don't match and explain why.
 
 | Phase | Priority | Target | Status |
 |-------|----------|--------|--------|
-| Phase 1 | P0 MUST | April 2026 | ✅ Functional Scope Complete |
+| Phase 1 | P0 MUST | April 2026 | ✅ Closed |
 | Phase 2 | P0 MUST | May 2026 | 🔴 TODO |
 | Phase 3 | P1 NICE | June 2026 | 🔴 TODO |
 | Phase 4 | P1 NICE | June 2026 | 🔴 TODO |
@@ -219,29 +222,29 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 ## Current Focus
 
-**Phase 1:** Functional scope complete. Test coverage exists at controller/service level for ingestion and summary flows.
+**Phase 1:** Closed on 14 May 2026. Test coverage exists at controller/service level for ingestion, summary, and health-check flows.
 
-**Next session start:** Phase 1 functional scope is complete. Current focus shifts to engineering understanding and deploy preparation before Phase 2 reconciliation logic.
+**Next session start:** Begin Phase 2 reconciliation/discrepancy detection from one concrete scenario, preferably missing usage. Start with data flow before code.
 
-Planned direction:
-- Short architecture/data-flow review for all current ingestion and summary endpoints
-- Minimal architecture documentation update focused on request flow, idempotency, validation, exception handling, and repository boundaries
-- Decide deploy direction and deployment learning scope
-- Implement local Docker Compose setup before hosted deployment exploration
-- Begin Phase 2 reconciliation/discrepancy detection only after deploy baseline exists
+Planned Phase 2 direction:
+- Draw the first reconciliation data flow: usage events + billing records + plan prices → expected amount → billed amount → discrepancy.
+- Pick one scenario first instead of designing every discrepancy type at once.
+- Define expected behavior and tests before implementation.
+- Keep deploy improvements as follow-up work unless they directly support Phase 2.
 
 TestContainers integration tests remain a follow-up item and are intentionally postponed until deploy preparation and reconciliation work begin.
 
-**Next-session checklist:**
+**Phase 1 closure checklist:**
 - [x] Review current Phase 1 data flows for ingestion and summary endpoints
 - [x] Validate architecture understanding against current implementation
-- [ ] Add compact architecture/data-flow documentation for current endpoints
+- [x] Add compact architecture/data-flow documentation for current endpoints
 - [x] Create backend Dockerfile
 - [x] Create local Docker Compose setup (backend + PostgreSQL)
 - [x] Externalize configuration via environment variables
 - [x] Validate containerized local startup flow
-- [ ] Decide future hosted deployment direction (Railway, Render, VPS, etc.)
-- [ ] Begin Phase 2 reconciliation/discrepancy detection after deploy baseline is stable
+- [x] Add lightweight health endpoint
+- [x] Add controller test for health endpoint
+- [x] Close Phase 1 and move remaining improvements to follow-up
 
 Current Docker milestone:
 - Backend Dockerfile uses a multi-stage build: Maven/JDK build stage and JRE runtime stage
@@ -249,10 +252,14 @@ Current Docker milestone:
 - PostgreSQL data is stored in a named Docker volume
 - Local env values are documented through `deploy/env/.env.example`
 - Local cleanup is possible with `docker-compose down -v`
+- Backend exposes `GET /api/health` for a lightweight liveness check
 
-Next practical focus:
-- Decide whether to add a lightweight health endpoint before hosted deployment
-- Start Phase 2 reconciliation only after the local deploy baseline is stable
+Follow-up improvements, not Phase 1 blockers:
+- Run the full backend test suite after the final docs update
+- Verify `GET /api/health` through Docker Compose
+- Decide future hosted deployment direction (Railway, Render, VPS, etc.)
+- Add TestContainers integration tests for SQL-backed ingestion and summary flows
+- Consider Spring Actuator or DB readiness checks later, when hosted deployment needs them
 
 ---
 
@@ -275,5 +282,5 @@ Current deployment strategy:
 Reasoning:
 The goal is not DevOps specialization yet. The current focus is learning how backend systems are packaged, run, debugged, and exposed in realistic environments while keeping the project simple enough to continue Phase 2 reconciliation work.
 
-**Last Updated:** 9 May 2026
-**Status:** Phase 1 functional scope complete — ingestion endpoints, idempotency handling, validation/error paths, summary read path, and controller/service tests are in place. Integration tests remain planned for deploy prep / Phase 2 follow-up.
+**Last Updated:** 14 May 2026
+**Status:** Phase 1 closed — ingestion endpoints, idempotency handling, validation/error paths, summary read path, local Docker baseline, health endpoint, and controller/service tests are in place. Integration tests and hosted deployment remain planned for Phase 2 / deploy follow-up.

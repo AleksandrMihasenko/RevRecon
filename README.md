@@ -72,6 +72,18 @@ Backend:
 http://localhost:8080
 ```
 
+Health check:
+
+```text
+GET http://localhost:8080/api/health
+```
+
+Expected response:
+
+```json
+{"status":"UP"}
+```
+
 PostgreSQL:
 
 ```text
@@ -113,7 +125,7 @@ Use only for local development cleanup because it removes local database data.
 RevRecon/
 ├── backend/           # Spring Boot application
 ├── docs/
-│   ├── adr/           # Architecture Decision Records
+│   ├── ADR/           # Architecture Decision Records
 │   ├── architecture/  # System design, patterns
 │   └── domain/        # Domain glossary
 └── .context/          # Project context files
@@ -121,7 +133,7 @@ RevRecon/
 
 ## Status
 
-**Phase 1: Core Model + Ingestion** — Functional scope complete
+**Phase 1: Core Model + Ingestion** — Closed
 
 - [x] Project setup
 - [x] ADR-001: Layered Architecture
@@ -129,8 +141,10 @@ RevRecon/
 - [x] Ingestion endpoints
 - [x] First summary read endpoint
 - [x] Phase 1 controller/service tests
-- [ ] TestContainers integration tests
-- [ ] Deploy prep before Phase 2
+- [x] Local Docker Compose baseline
+- [x] Lightweight health endpoint
+- [ ] TestContainers integration tests (Phase 2 / deploy follow-up)
+- [ ] Hosted deployment decision
 - [ ] Phase 2 reconciliation logic
 
 ## Documentation
