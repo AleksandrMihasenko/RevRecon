@@ -27,3 +27,6 @@ replay_pid*
 *.iml
 
 .env
+
+# Private wiki and career docs - NEVER publish
+.wiki/
