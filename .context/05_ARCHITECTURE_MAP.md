@@ -1,6 +1,6 @@
 # Architecture Docs
 
-**Updated:** 14 May 2026
+**Updated:** 17 May 2026
 
 ---
 
@@ -47,7 +47,8 @@ com.revrecon.backend/
 ├── service/
 │   ├── UsageEventService.java
 │   ├── BillingRecordService.java
-│   └── UsageBillingSummaryService.java
+│   ├── UsageBillingSummaryService.java
+│   └── DiscrepancyService.java
 ├── repository/
 │   ├── CustomerRepository.java
 │   ├── PlanRepository.java
@@ -62,7 +63,9 @@ com.revrecon.backend/
 │   ├── UsageEvent.java
 │   ├── UsageMetricTotal.java
 │   ├── BillingRecord.java
-│   └── BillingRecordStatus.java
+│   ├── BillingRecordStatus.java
+│   ├── Discrepancy.java
+│   └── DiscrepancyType.java
 ├── dto/
 │   ├── UsageEventRequest.java
 │   ├── UsageEventResponse.java
@@ -89,7 +92,8 @@ src/test/java/com/revrecon/backend/
 │   └── HealthControllerTest.java
 └── service/
     ├── BillingRecordServiceTest.java
-    └── UsageBillingSummaryServiceTest.java
+    ├── UsageBillingSummaryServiceTest.java
+    └── DiscrepancyServiceTest.java
 ```
 
 **Data flow:**
@@ -102,6 +106,20 @@ HTTP Response ← Controller ← Service ← Repository
                   ↓
               DTO (Response)
 ```
+
+**Current reconciliation flow:**
+```
+DiscrepancyService
+    → UsageEventRepository.getUsageTotalsByMetric(customerId, periodStart, periodEnd)
+    → BillingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd)
+    → if usage exists and billing record is missing:
+          Discrepancy(type = UNBILLED_USAGE)
+```
+
+Current rule boundary:
+- `UNBILLED_USAGE` means usage exists, but the billing record is missing.
+- Billing exists but usage is missing is a separate future discrepancy type.
+- Discrepancies are derived dynamically and are not stored yet.
 
 **Exception flow:**
 ```
@@ -132,5 +150,6 @@ Summary period business rule violation
 ## Current Focus
 
 - Phase 1 is closed: ingestion, summary, local runtime baseline, and health check are in place
-- Start Phase 2 with one concrete reconciliation scenario before designing every discrepancy type
+- Phase 2 started with one concrete reconciliation scenario before designing every discrepancy type
+- Next step: negative service test for usage exists + billing record exists → no discrepancy
 - Keep larger architectural changes delayed until Phase 2 creates real pain

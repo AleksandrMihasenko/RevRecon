@@ -32,11 +32,15 @@ Learning as I build. Adding terms and concepts here.
 
 | Type | What happens | Example |
 |------|--------------|---------|
-| **Missing usage** | Usage tracked but not billed | API calls logged but not invoiced |
+| **UNBILLED_USAGE** | Usage exists for a period, but no billing record exists for the same customer and period | API calls logged for May, but no May billing record exists |
 | **Duplicate billing** | Same usage charged twice | Invoice generated twice |
 | **Wrong pricing** | Incorrect rate applied | Old price used after upgrade |
 | **Timing mismatch** | Wrong billing period | March usage on February invoice |
 | **Unbilled overage** | Usage exceeds plan, not charged | 150 seats used, only 100 billed |
+
+Important distinction:
+- `UNBILLED_USAGE` means usage exists and billing is missing.
+- Billing exists but no usage supports it is a different future discrepancy type, not `UNBILLED_USAGE`.
 
 ---
 
@@ -63,12 +67,23 @@ Learning as I build. Adding terms and concepts here.
 | **Usage reconciliation** | Compare usage logs vs billing records |
 | **Payment reconciliation** | Compare invoices vs actual payments |
 
+First implemented reconciliation rule:
+
+```text
+If usage totals exist for customer + period
+and no billing record exists for the exact same customer + period,
+return UNBILLED_USAGE.
+```
+
+Current implementation notes:
+- The rule is implemented dynamically in service logic.
+- Discrepancies are not persisted yet.
+- Human-facing explanations should describe the business mismatch, not only raw counts.
+
 ---
 
 ## Notes & Insights
 
-(Add as learning progresses)
-
-**Date:** ...
-**Topic:** ...
-**Insight:** ...
+**Date:** 17 May 2026
+**Topic:** First reconciliation rule
+**Insight:** Business rules should be understandable through domain language in code: `Discrepancy`, `DiscrepancyType`, `UNBILLED_USAGE`, service-level scenario tests, and human-readable explanations. Comments are supporting context, not the source of truth.

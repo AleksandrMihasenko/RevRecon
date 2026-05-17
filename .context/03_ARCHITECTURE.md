@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Phase 1 closed. Reconciliation/discrepancy detection architecture is the next focus.
+**Status:** Phase 1 closed. Phase 2 reconciliation has started with the first dynamic discrepancy rule.
 
 ---
 
@@ -21,6 +21,7 @@
 │  ├── UsageEventService                          │
 │  ├── BillingRecordService                       │
 │  ├── UsageBillingSummaryService                 │
+│  ├── DiscrepancyService                         │
 │  ├── ReconciliationService (planned)            │
 │  └── DiscrepancyDetector (planned)              │
 ├─────────────────────────────────────────────────┤
@@ -47,17 +48,32 @@ Current implemented entities:
 - Plan
 - UsageEvent
 - BillingRecord
+- Discrepancy
+- DiscrepancyType
 
 Planned entities:
-- Discrepancy
 - ReconciliationSnapshot
 - ReconciliationResult
 
 Current architecture direction:
 - Usage events and billing records are ingested independently
 - Summary endpoint compares usage and billing data dynamically
-- Future reconciliation layer will detect inconsistencies, missing charges, duplicate billing, and timing mismatches
+- `DiscrepancyService` currently derives the first discrepancy dynamically from usage and billing source data
+- Future reconciliation layer will expand detection to duplicate billing, wrong pricing, timing mismatches, and richer explanations
 - System is intentionally evolving toward correctness/reliability engineering rather than only CRUD operations
+
+Current implemented discrepancy rule:
+
+```text
+UNBILLED_USAGE =
+usage totals exist for customer + period
+and no billing record exists for the exact same customer + period.
+```
+
+Current persistence decision:
+- Discrepancies are not stored in a table yet.
+- They are derived from `usage_events` and `billing_records` at service level.
+- A table can be added later if reconciliation runs need history, resolution state, assignment, or audit workflow.
 
 ---
 
@@ -105,4 +121,4 @@ docker-compose down -v
 
 ---
 
-**Last Updated:** 14 May 2026
+**Last Updated:** 17 May 2026

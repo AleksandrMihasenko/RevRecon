@@ -1,6 +1,6 @@
 # Pattern Map
 
-**Last Updated:** 14 May 2026  
+**Last Updated:** 17 May 2026  
 **Purpose:** Document patterns used in RevRecon — where, why, and what alternatives exist.
 
 ---
@@ -19,7 +19,29 @@ For each pattern:
 
 ## Patterns in Use
 
-(To be filled as patterns are implemented)
+### Service Layer
+
+**Where:** `UsageEventService`, `BillingRecordService`, `UsageBillingSummaryService`, `DiscrepancyService`
+
+**Problem:** Business rules should not live in controllers or repositories.
+
+**Why chosen:** The current architecture is layered. Services are the right place to orchestrate repositories and apply use-case/business rules.
+
+**Alternative:** Move rules into separate domain rule classes. This is useful later if discrepancy rules grow and one service turns into a long chain of unrelated `if` statements.
+
+**Learned:** The first discrepancy rule is readable because the business language appears in code names: `Discrepancy`, `DiscrepancyType`, `UNBILLED_USAGE`, and the service test scenario.
+
+### Derived Domain Object
+
+**Where:** `Discrepancy`
+
+**Problem:** The system needs to return a business result without necessarily storing it in a table.
+
+**Why chosen:** The first reconciliation rule can be calculated from existing `usage_events` and `billing_records`. Persisting discrepancies now would add workflow assumptions that do not exist yet.
+
+**Alternative:** Persist discrepancies in a dedicated table when the product needs reconciliation run history, resolution status, assignment, or audit workflow.
+
+**Learned:** A model class is not always a database entity. In this case, `Discrepancy` represents a derived business finding.
 
 ---
 
@@ -28,7 +50,7 @@ For each pattern:
 | Pattern | When to consider | Status |
 |---------|------------------|--------|
 | Repository | Data access abstraction | 🔴 TODO |
-| Service Layer | Business logic isolation | 🔴 TODO |
+| Service Layer | Business logic isolation | ✅ In use |
 | DTO | Request/response separation | 🔴 TODO |
 | Factory | Object creation | 🔴 TODO |
 | Strategy | Interchangeable algorithms | 🔴 TODO |

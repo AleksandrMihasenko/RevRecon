@@ -2,7 +2,7 @@
 
 **Project:** RevRecon
 **Started:** 21 March 2026
-**Current Phase:** Phase 2 next — Phase 1 closed on 14 May 2026
+**Current Phase:** Phase 2 started — first reconciliation rule implemented
 **Market entry:** June 2026
 
 ---
@@ -11,7 +11,7 @@
 
 | Phase | Priority | Status |
 |-------|----------|--------|
-| Phase 1-2 | P0 MUST HAVE | ✅ Phase 1 closed, Phase 2 next |
+| Phase 1-2 | P0 MUST HAVE | ✅ Phase 1 closed, Phase 2 started |
 | Phase 3-5 | P1/P2 NICE TO HAVE | 🔴 TODO |
 
 ---
@@ -42,6 +42,7 @@
 | Phase 1 controller/service tests | ✅ |
 | Local Docker Compose baseline | ✅ |
 | GET /api/health | ✅ |
+| First discrepancy rule: UNBILLED_USAGE | ✅ |
 
 ---
 
@@ -170,11 +171,42 @@ Remaining items are intentionally follow-up work, not Phase 1 blockers:
 - hosted deployment direction decision
 - optional Spring Actuator or DB readiness checks later
 
-Next product/learning focus: Phase 2 reconciliation, starting from one concrete discrepancy scenario.
+Next product/learning focus: continue Phase 2 reconciliation from the first concrete discrepancy scenario.
 
 ---
 
-## Phase 2 Preview
+## Phase 2: Reconciliation + Detection
+
+**Started:** 17 May 2026
+
+### Discrepancy Detection
+
+| Task | Status |
+|------|--------|
+| Define first scenario: usage exists, billing record missing | ✅ |
+| Add `DiscrepancyType.UNBILLED_USAGE` | ✅ |
+| Add `Discrepancy` domain model | ✅ |
+| Add `DiscrepancyService` service-level rule | ✅ |
+| Add service test for unbilled usage | ✅ |
+| Negative test: usage exists + billing exists → no discrepancy | 🔴 TODO |
+| `GET /api/discrepancies` endpoint | 🔴 TODO |
+| Discrepancy response DTO | 🔴 TODO |
+| Human-readable explanation refinement | 🔴 TODO |
+
+Current rule:
+
+```text
+If a customer has usage totals in a period
+and no billing record exists for the exact same customer + period,
+return UNBILLED_USAGE.
+```
+
+Design note:
+- Discrepancies are currently derived dynamically from `usage_events` and `billing_records`.
+- No `discrepancies` table exists yet.
+- Persisting discrepancies can be considered later if the system needs reconciliation run history, resolution status, owners, or audit workflow.
+
+### Phase 2 Follow-up
 
 | Task | Status |
 |------|--------|
@@ -195,8 +227,9 @@ Next product/learning focus: Phase 2 reconciliation, starting from one concrete 
 | INSERT vs UPDATE separation in billing | 1 | ✅ (can explain why) |
 | Exception handling strategy | 1 | ✅ (domain vs technical) |
 | DTO vs Entity — why separate? | 1 | ✅ (can explain) |
+| First revenue leakage rule: unbilled usage | 2 | 🟡 (service rule implemented) |
 | Optimistic locking | 2 | 🟡 (know concept) |
-| How to detect revenue leakage? | 2 | 🔴 |
+| How to detect revenue leakage? | 2 | 🟡 (first concrete case implemented) |
 | Design a reconciliation system | 2 | 🔴 |
 | How to handle failed batch jobs? | 2 | 🔴 |
 
@@ -204,6 +237,29 @@ Next product/learning focus: Phase 2 reconciliation, starting from one concrete 
 
 
 ## Weekly Log
+
+### Reconciliation / Phase 2 Start
+
+**Done:**
+- [x] Clarified the project purpose as a reconciliation / revenue leakage detector, not a billing system
+- [x] Defined first discrepancy scenario: `UNBILLED_USAGE`
+- [x] Chose the narrower definition: usage exists and billing record is missing
+- [x] Separated this from the future case where billing exists but no usage supports it
+- [x] Added `DiscrepancyType` and `Discrepancy` domain model
+- [x] Added `DiscrepancyService`
+- [x] Added green service-level test for `UNBILLED_USAGE`
+
+**Learned:**
+- Business rules should not live only in comments.
+- A rule is made understandable through domain names, enums, small service methods, scenario tests, and docs.
+- `UNBILLED_USAGE` means usage exists but a matching billing record is missing.
+- Billing exists but usage is missing is a different future discrepancy type, not `UNBILLED_USAGE`.
+- For one rule, a simple service-level `if` is enough; rule classes or a rule engine are premature.
+
+**Next:**
+- Add negative test: usage exists and billing record exists returns no discrepancies.
+- Add `@Service` before wiring the rule into an API endpoint.
+- Decide the first API shape for `GET /api/discrepancies`.
 
 ### Docker / Local Deploy Prep
 
@@ -391,13 +447,11 @@ Next product/learning focus: Phase 2 reconciliation, starting from one concrete 
 
 ## Current Next Steps
 
-1. Commit Phase 1 closure work cleanly.
-2. Run full backend test suite.
-3. Verify `GET /api/health` through Docker Compose.
-4. Start Phase 2 reconciliation with one concrete scenario, preferably missing usage.
-5. Draw the first reconciliation data flow before code:
-   usage events + billing records + plan prices → expected amount → billed amount → discrepancy.
-6. Add TestContainers integration tests as Phase 2 / deploy follow-up.
+1. Add negative service test: usage exists + billing record exists → no discrepancy.
+2. Add `@Service` to `DiscrepancyService` before wiring it into Spring.
+3. Decide first `GET /api/discrepancies` request/response shape.
+4. Add controller + DTO only after service behavior is covered.
+5. Add TestContainers integration tests as Phase 2 / deploy follow-up.
 
 ### Week 6: 26 April 2026
 
@@ -428,4 +482,4 @@ Next product/learning focus: Phase 2 reconciliation, starting from one concrete 
 
 ---
 
-**Last Updated:** 14 May 2026
+**Last Updated:** 17 May 2026

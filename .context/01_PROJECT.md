@@ -224,12 +224,13 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 **Phase 1:** Closed on 14 May 2026. Test coverage exists at controller/service level for ingestion, summary, and health-check flows.
 
-**Next session start:** Begin Phase 2 reconciliation/discrepancy detection from one concrete scenario, preferably missing usage. Start with data flow before code.
+**Next session start:** Continue Phase 2 reconciliation from the first implemented scenario, `UNBILLED_USAGE`.
 
 Planned Phase 2 direction:
-- Draw the first reconciliation data flow: usage events + billing records + plan prices → expected amount → billed amount → discrepancy.
-- Pick one scenario first instead of designing every discrepancy type at once.
-- Define expected behavior and tests before implementation.
+- Add the negative service test: usage exists + billing record exists → no discrepancy.
+- Add `@Service` before wiring `DiscrepancyService` into an endpoint.
+- Decide first `GET /api/discrepancies` request/response shape.
+- Keep each new discrepancy type scenario-based instead of designing every type at once.
 - Keep deploy improvements as follow-up work unless they directly support Phase 2.
 
 TestContainers integration tests remain a follow-up item and are intentionally postponed until deploy preparation and reconciliation work begin.
@@ -282,5 +283,5 @@ Current deployment strategy:
 Reasoning:
 The goal is not DevOps specialization yet. The current focus is learning how backend systems are packaged, run, debugged, and exposed in realistic environments while keeping the project simple enough to continue Phase 2 reconciliation work.
 
-**Last Updated:** 14 May 2026
-**Status:** Phase 1 closed — ingestion endpoints, idempotency handling, validation/error paths, summary read path, local Docker baseline, health endpoint, and controller/service tests are in place. Integration tests and hosted deployment remain planned for Phase 2 / deploy follow-up.
+**Last Updated:** 17 May 2026
+**Status:** Phase 2 started — first reconciliation rule is implemented at service level. `UNBILLED_USAGE` currently means usage exists for a customer and period, but no matching billing record exists. Integration tests and hosted deployment remain planned follow-up work.

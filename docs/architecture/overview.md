@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Last Updated:** 14 May 2026
-**Status:** Phase 1 — Closed
+**Last Updated:** 17 May 2026
+**Status:** Phase 2 — First reconciliation rule implemented
 
 ---
 
@@ -20,7 +20,7 @@ RevRecon: Detect where usage and billing don't match and explain why.
 ```
 Phase 1: Layered (Controller → Service → Repository)  ← CLOSED
     ↓
-Phase 2+: Feel the pain? → ADR + refactor to Clean/Hexagonal
+Phase 2: Add reconciliation rules in the Service layer; feel the pain before refactoring
     ↓
 Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 ```
@@ -39,12 +39,12 @@ Phase 4: One advanced experiment (Event Sourcing / CQRS / Alerts / Simulation)
 | Phase | Style | Focus | Status |
 |-------|-------|-------|--------|
 | Phase 1 | Layered | Simple start, learn basics | ✅ Closed |
-| Phase 2 | Evaluate | Do we feel pain? What specifically? | 🔴 TODO |
+| Phase 2 | Layered + evaluation | Reconciliation rules, discrepancy detection, watch for service complexity | 🟡 Started |
 | Phase 4 | TBD | One experiment: Event Sourcing / CQRS / Alerts / Simulation | 🔴 TODO |
 
 ---
 
-## Current Architecture (Phase 1)
+## Current Architecture (Phase 2)
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -120,6 +120,22 @@ com.revrecon.backend/
 │ created_at       │     │ created_at       │
 │ updated_at       │     │ updated_at       │
 └──────────────────┘     └──────────────────┘
+
+Derived domain model:
+
+```
+┌──────────────────┐
+│   Discrepancy    │
+├──────────────────┤
+│ customerId       │
+│ type             │
+│ periodStart      │
+│ periodEnd        │
+│ explanation      │
+└──────────────────┘
+```
+
+`Discrepancy` is not persisted yet. It is derived dynamically from usage and billing source data.
 ```
 
 **Key design decisions:**
@@ -154,6 +170,7 @@ com.revrecon.backend/
 | UsageBillingSummaryController | GET /usage-billing-summary | 1 | ✅ Done |
 | UsageBillingSummaryService | Aggregate usage + billed totals for period | 1 | ✅ Done |
 | HealthController | GET /health lightweight liveness check | 1 / Deploy prep | ✅ Done |
+| DiscrepancyService | Detect first discrepancy from source data | 2 | ✅ First rule done |
 | DiscrepancyController | GET /discrepancies | 2 | 🔴 TODO |
 | ReconciliationService | Compare usage vs billing | 2 | 🔴 TODO |
 | DiscrepancyDetector | Find and classify issues | 2 | 🔴 TODO |
@@ -162,6 +179,31 @@ com.revrecon.backend/
 ---
 
 ## Data Flow
+
+### DiscrepancyService: UNBILLED_USAGE
+
+Purpose: detect the first revenue leakage scenario from already ingested usage and billing data.
+
+Rule:
+
+```text
+If a customer has usage totals in a period
+and no billing record exists for the exact same customer + period,
+return UNBILLED_USAGE.
+```
+
+Flow:
+1. Caller provides `customerId`, `periodStart`, and `periodEnd`.
+2. `DiscrepancyService` calls `UsageEventRepository.getUsageTotalsByMetric(...)`.
+3. `DiscrepancyService` calls `BillingRecordRepository.findByCustomerIdAndPeriod(...)`.
+4. If usage totals are present and billing record is missing, service returns a `Discrepancy`.
+5. Otherwise, service returns an empty list.
+
+Design notes:
+- This is service-level business logic, not repository logic.
+- The rule is intentionally narrow: `UNBILLED_USAGE` means billing record missing, not amount mismatch.
+- Billing exists but no usage supports it is a different future discrepancy type.
+- No `discrepancies` table exists yet; persistence can be added when reconciliation history or workflow is needed.
 
 ### GET /api/health
 
@@ -286,14 +328,16 @@ Location: `/docs/architecture/diagrams/`
 | 3 May 2026 | First read-side summary endpoint and aggregation queries | — |
 | 7 May 2026 | Summary controller/service tests added; Phase 1 functional scope complete | — |
 | 14 May 2026 | Health endpoint added; Phase 1 closed | — |
+| 17 May 2026 | First reconciliation rule implemented: `UNBILLED_USAGE` | — |
 
 ---
 
 ## Follow-Up Improvements
 
-These are useful but are not Phase 1 blockers:
-- Run full backend test suite after final documentation updates.
-- Verify `GET /api/health` through Docker Compose.
+Current Phase 2 follow-ups:
+- Add negative service test for usage exists + billing record exists → no discrepancy.
+- Add `GET /api/discrepancies` after service behavior is covered.
+- Refine human-readable discrepancy explanations.
 - Add TestContainers integration tests for SQL-backed ingestion and summary flows.
 - Decide hosted deployment direction.
 - Consider Spring Actuator or DB readiness checks when deployment requirements become clearer.

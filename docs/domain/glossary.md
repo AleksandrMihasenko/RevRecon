@@ -1,6 +1,6 @@
 # Domain Glossary
 
-**Last Updated:** 28 March 2026
+**Last Updated:** 17 May 2026
 **Purpose:** Ubiquitous language — terms we use in code, conversations, and documentation.
 
 ---
@@ -128,6 +128,26 @@ traceable.
 
 ---
 
+### Discrepancy
+
+**Definition:** A detected mismatch between usage data and billing data for a customer and period.
+
+Current attributes:
+- `customerId` — customer affected by the mismatch
+- `type` — discrepancy classification
+- `periodStart` — billing period start
+- `periodEnd` — billing period end
+- `explanation` — human-readable reason for the mismatch
+
+Current persistence:
+- `Discrepancy` is a derived domain object.
+- It is not stored in a database table yet.
+- It is calculated from `usage_events` and `billing_records`.
+
+**Example:** "Customer has usage in May 2026, but no billing record exists for May 2026."
+
+---
+
 ## Enums
 
 ### subscription_status
@@ -148,9 +168,30 @@ traceable.
 | `paid` | Payment received |
 | `voided` | Cancelled/invalid |
 
+### discrepancy_type
+
+| Value | Meaning |
+|-------|---------|
+| `UNBILLED_USAGE` | Usage exists for the customer and period, but no matching billing record exists |
+
+Important distinction:
+- `UNBILLED_USAGE` means usage exists and billing is missing.
+- Billing exists but no usage supports it is a separate future discrepancy type, not `UNBILLED_USAGE`.
+
 ---
 
 ## Reconciliation Flow
+
+### Current Minimal Flow
+
+```
+1. Get usage totals for customer + period
+2. Get billing record for same customer + exact period
+3. If usage exists and billing record is missing → Discrepancy(type = UNBILLED_USAGE)
+4. Otherwise → no discrepancy for this rule
+```
+
+### Future Pricing Flow
 
 ```
 1. Get UsageEvents for customer + period
@@ -183,8 +224,18 @@ The unit is embedded in the name (e.g., `storage_gb` not just `storage`).
 
 Every table has `created_at` and `updated_at` for tracking when records were created and modified.
 
+### Unbilled Usage
+
+Usage that was recorded by the metering/source system but was not represented by a billing record for the same customer and billing period.
+
+This is the first implemented revenue leakage scenario in RevRecon.
+
 ---
 
 ## Notes & Insights
 
-(Add as learning progresses)
+### 17 May 2026
+
+**Topic:** First reconciliation rule
+
+**Insight:** The first Phase 2 rule is intentionally narrow: usage exists and the billing record is missing. Amount mismatches and billing-without-usage are separate future discrepancy types.
