@@ -1,7 +1,8 @@
 package com.revrecon.backend.service;
 
+import com.revrecon.backend.dto.DiscrepancyResponse;
+import com.revrecon.backend.exception.InvalidBillingPeriodException;
 import com.revrecon.backend.model.BillingRecord;
-import com.revrecon.backend.model.Discrepancy;
 import com.revrecon.backend.model.DiscrepancyType;
 import com.revrecon.backend.model.UsageMetricTotal;
 import com.revrecon.backend.repository.BillingRecordRepository;
@@ -23,12 +24,16 @@ public class DiscrepancyService {
         this.usageEventRepository = usageEventRepository;
     }
 
-    public List<Discrepancy> findDiscrepancies(Long customerId, Instant periodStart, Instant periodEnd) {
+    public List<DiscrepancyResponse> findDiscrepancies(Long customerId, Instant periodStart, Instant periodEnd) {
+        if (periodStart.isAfter(periodEnd)) {
+            throw new InvalidBillingPeriodException();
+        }
+
         List<UsageMetricTotal> usageTotals = usageEventRepository.getUsageTotalsByMetric(customerId, periodStart, periodEnd);
         Optional<BillingRecord> billingRecord = billingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd);
 
         if (billingRecord.isEmpty() && !usageTotals.isEmpty()) {
-            return List.of(new Discrepancy(customerId, DiscrepancyType.UNBILLED_USAGE, periodStart, periodEnd, "Billing record missing for period"));
+            return List.of(new DiscrepancyResponse(customerId, DiscrepancyType.UNBILLED_USAGE, periodStart, periodEnd, "Billing record missing for period"));
         }
 
         return List.of();

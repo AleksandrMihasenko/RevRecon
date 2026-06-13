@@ -1,5 +1,7 @@
 package com.revrecon.backend.service;
 
+import com.revrecon.backend.dto.DiscrepancyResponse;
+import com.revrecon.backend.exception.InvalidBillingPeriodException;
 import com.revrecon.backend.model.*;
 import com.revrecon.backend.repository.BillingRecordRepository;
 import com.revrecon.backend.repository.UsageEventRepository;
@@ -10,10 +12,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 
 public class DiscrepancyServiceTest {
     @Test
@@ -30,7 +32,7 @@ public class DiscrepancyServiceTest {
         when(billingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd)).thenReturn(Optional.empty());
 
         // Act
-        List<Discrepancy> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
+        List<DiscrepancyResponse> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
 
         // Assert
         assertEquals(1, discrepancies.size(), "Discrepancies list size should be 1");
@@ -70,7 +72,7 @@ public class DiscrepancyServiceTest {
         when(billingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd)).thenReturn(Optional.of(billingRecord));
 
         // Act
-        List<Discrepancy> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
+        List<DiscrepancyResponse> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
 
         // Assert
         assertTrue(discrepancies.isEmpty(), "Discrepancies list should be empty");
@@ -90,6 +92,7 @@ public class DiscrepancyServiceTest {
         BillingRecordRepository billingRecordRepository = mock(BillingRecordRepository.class);
         UsageEventRepository usageEventRepository = mock(UsageEventRepository.class);
         DiscrepancyService discrepancyService = new DiscrepancyService(billingRecordRepository, usageEventRepository);
+
         when(usageEventRepository.getUsageTotalsByMetric(customerId, periodStart, periodEnd)).thenReturn(List.of());
         BillingRecord billingRecord = new BillingRecord(
                 id,
@@ -105,7 +108,7 @@ public class DiscrepancyServiceTest {
         when(billingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd)).thenReturn(Optional.of(billingRecord));
 
         // Act
-        List<Discrepancy> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
+        List<DiscrepancyResponse> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
 
         // Assert
         assertTrue(discrepancies.isEmpty(), "Discrepancies list should be empty");
@@ -121,13 +124,32 @@ public class DiscrepancyServiceTest {
         BillingRecordRepository billingRecordRepository = mock(BillingRecordRepository.class);
         UsageEventRepository usageEventRepository = mock(UsageEventRepository.class);
         DiscrepancyService discrepancyService = new DiscrepancyService(billingRecordRepository, usageEventRepository);
+
         when(usageEventRepository.getUsageTotalsByMetric(customerId, periodStart, periodEnd)).thenReturn(List.of());
         when(billingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd)).thenReturn(Optional.empty());
 
         // Act
-        List<Discrepancy> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
+        List<DiscrepancyResponse> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
 
         // Assert
         assertTrue(discrepancies.isEmpty(), "Discrepancies list should be empty");
+    }
+
+    @Test
+    void findDiscrepancies_shouldThrowInvalidBillingPeriodException_whenPeriodIsInvalid() {
+        Long customerId = 1L;
+        Instant periodStart = Instant.parse("2026-06-01T00:00:00Z");
+        Instant periodEnd = Instant.parse("2026-05-01T00:00:00Z");
+
+        // Arrange
+        BillingRecordRepository billingRecordRepository = mock(BillingRecordRepository.class);
+        UsageEventRepository usageEventRepository = mock(UsageEventRepository.class);
+        DiscrepancyService discrepancyService = new DiscrepancyService(billingRecordRepository, usageEventRepository);
+
+        // Act
+        assertThrows(InvalidBillingPeriodException.class, () -> discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd));
+
+        // Assert
+        verifyNoInteractions(usageEventRepository, billingRecordRepository);
     }
 }
