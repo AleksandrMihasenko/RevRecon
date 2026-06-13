@@ -104,7 +104,7 @@ Detect where usage and billing don't match and explain why.
 - [ ] Optimistic locking (version column)
 - [ ] Comparison logic: expected vs billed
 - [ ] Discrepancy types: missing, duplicate, wrong price, timing mismatch
-- [ ] GET /discrepancies endpoint
+- [x] GET /discrepancies endpoint
 - [ ] Revenue metrics: expected revenue, billed revenue, discrepancy amount
 - [ ] Scheduled reconciliation job
 - [ ] Error handling (what if reconciliation fails mid-way?)
@@ -224,12 +224,11 @@ Full decision log: [PRIVATE_DECISIONS.md](./.context/PRIVATE_DECISIONS.md)
 
 **Phase 1:** Closed on 14 May 2026. Test coverage exists at controller/service level for ingestion, summary, and health-check flows.
 
-**Next session start:** Continue Phase 2 reconciliation from the first implemented scenario, `UNBILLED_USAGE`.
+**Next session start:** Continue Phase 2 after completing the `UNBILLED_USAGE` API flow.
 
 Planned Phase 2 direction:
-- Add the negative service test: usage exists + billing record exists → no discrepancy.
-- Add `@Service` before wiring `DiscrepancyService` into an endpoint.
-- Decide first `GET /api/discrepancies` request/response shape.
+- Add Testcontainers integration coverage for the SQL-backed reconciliation path.
+- Select the next discrepancy type from a concrete failure scenario.
 - Keep each new discrepancy type scenario-based instead of designing every type at once.
 - Keep deploy improvements as follow-up work unless they directly support Phase 2.
 

@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Last Updated:** 17 May 2026
-**Status:** Phase 2 — First reconciliation rule implemented
+**Last Updated:** 13 June 2026
+**Status:** Phase 2 — First reconciliation rule exposed through API
 
 ---
 
@@ -171,7 +171,7 @@ Derived domain model:
 | UsageBillingSummaryService | Aggregate usage + billed totals for period | 1 | ✅ Done |
 | HealthController | GET /health lightweight liveness check | 1 / Deploy prep | ✅ Done |
 | DiscrepancyService | Detect first discrepancy from source data | 2 | ✅ First rule done |
-| DiscrepancyController | GET /discrepancies | 2 | 🔴 TODO |
+| DiscrepancyController | GET /discrepancies | 2 | ✅ Done |
 | ReconciliationService | Compare usage vs billing | 2 | 🔴 TODO |
 | DiscrepancyDetector | Find and classify issues | 2 | 🔴 TODO |
 | ExplainabilityEngine | Analyze root cause | 3 | 🔴 TODO |
@@ -193,11 +193,13 @@ return UNBILLED_USAGE.
 ```
 
 Flow:
-1. Caller provides `customerId`, `periodStart`, and `periodEnd`.
-2. `DiscrepancyService` calls `UsageEventRepository.getUsageTotalsByMetric(...)`.
-3. `DiscrepancyService` calls `BillingRecordRepository.findByCustomerIdAndPeriod(...)`.
-4. If usage totals are present and billing record is missing, service returns a `Discrepancy`.
-5. Otherwise, service returns an empty list.
+1. Client calls `GET /api/discrepancies` with `customerId`, `periodStart`, and `periodEnd`.
+2. `DiscrepancyController` delegates to `DiscrepancyService`.
+3. Service rejects an invalid period before calling repositories.
+4. Service calls `UsageEventRepository.getUsageTotalsByMetric(...)`.
+5. Service calls `BillingRecordRepository.findByCustomerIdAndPeriod(...)`.
+6. If usage totals are present and billing record is missing, service returns `UNBILLED_USAGE`.
+7. Controller returns `200 OK` with a collection of `DiscrepancyResponse` values; no matches return an empty collection.
 
 Design notes:
 - This is service-level business logic, not repository logic.
@@ -335,9 +337,8 @@ Location: `/docs/architecture/diagrams/`
 ## Follow-Up Improvements
 
 Current Phase 2 follow-ups:
-- Add negative service test for usage exists + billing record exists → no discrepancy.
-- Add `GET /api/discrepancies` after service behavior is covered.
-- Refine human-readable discrepancy explanations.
+- Add Testcontainers coverage for the SQL-backed reconciliation path.
+- Select the next discrepancy type from a concrete failure scenario.
 - Add TestContainers integration tests for SQL-backed ingestion and summary flows.
 - Decide hosted deployment direction.
 - Consider Spring Actuator or DB readiness checks when deployment requirements become clearer.

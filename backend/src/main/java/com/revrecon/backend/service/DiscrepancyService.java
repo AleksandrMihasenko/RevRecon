@@ -33,7 +33,13 @@ public class DiscrepancyService {
         Optional<BillingRecord> billingRecord = billingRecordRepository.findByCustomerIdAndPeriod(customerId, periodStart, periodEnd);
 
         if (billingRecord.isEmpty() && !usageTotals.isEmpty()) {
-            return List.of(new DiscrepancyResponse(customerId, DiscrepancyType.UNBILLED_USAGE, periodStart, periodEnd, "Billing record missing for period"));
+            return List.of(new DiscrepancyResponse(
+                    customerId,
+                    DiscrepancyType.UNBILLED_USAGE,
+                    periodStart,
+                    periodEnd,
+                    "Usage was recorded, but no matching billing record was found for the period."
+            ));
         }
 
         return List.of();

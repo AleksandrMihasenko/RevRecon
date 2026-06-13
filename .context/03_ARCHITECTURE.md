@@ -1,6 +1,6 @@
 # Architecture
 
-**Status:** Phase 1 closed. Phase 2 reconciliation has started with the first dynamic discrepancy rule.
+**Status:** Phase 2. The first dynamic discrepancy rule is available through `GET /api/discrepancies`.
 
 ---
 
@@ -59,6 +59,7 @@ Current architecture direction:
 - Usage events and billing records are ingested independently
 - Summary endpoint compares usage and billing data dynamically
 - `DiscrepancyService` currently derives the first discrepancy dynamically from usage and billing source data
+- `DiscrepancyController` exposes the derived results as `DiscrepancyResponse` DTOs
 - Future reconciliation layer will expand detection to duplicate billing, wrong pricing, timing mismatches, and richer explanations
 - System is intentionally evolving toward correctness/reliability engineering rather than only CRUD operations
 
@@ -74,6 +75,12 @@ Current persistence decision:
 - Discrepancies are not stored in a table yet.
 - They are derived from `usage_events` and `billing_records` at service level.
 - A table can be added later if reconciliation runs need history, resolution state, assignment, or audit workflow.
+
+Current API behavior:
+- `GET /api/discrepancies` filters by `customerId`, `periodStart`, and `periodEnd`.
+- A detected mismatch is returned as a collection of `DiscrepancyResponse` values.
+- No detected mismatch returns `200 OK` with an empty collection.
+- `periodStart > periodEnd` returns `400 Bad Request`.
 
 ---
 

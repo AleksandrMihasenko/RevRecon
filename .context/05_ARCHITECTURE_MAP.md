@@ -151,5 +151,8 @@ Summary period business rule violation
 
 - Phase 1 is closed: ingestion, summary, local runtime baseline, and health check are in place
 - Phase 2 started with one concrete reconciliation scenario before designing every discrepancy type
-- Next step: negative service test for usage exists + billing record exists → no discrepancy
+- The complete usage/billing presence matrix is covered by service tests
+- `GET /api/discrepancies` exposes results through a response DTO
+- Invalid periods are rejected before repository calls
+- Next step: refine the explanation and add PostgreSQL integration coverage
 - Keep larger architectural changes delayed until Phase 2 creates real pain

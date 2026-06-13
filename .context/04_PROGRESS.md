@@ -2,7 +2,7 @@
 
 **Project:** RevRecon
 **Started:** 21 March 2026
-**Current Phase:** Phase 2 started — first reconciliation rule implemented
+**Current Phase:** Phase 2 — first reconciliation rule exposed through API
 **Market entry:** June 2026
 
 ---
@@ -43,6 +43,7 @@
 | Local Docker Compose baseline | ✅ |
 | GET /api/health | ✅ |
 | First discrepancy rule: UNBILLED_USAGE | ✅ |
+| GET /api/discrepancies | ✅ |
 
 ---
 
@@ -188,10 +189,12 @@ Next product/learning focus: continue Phase 2 reconciliation from the first conc
 | Add `Discrepancy` domain model | ✅ |
 | Add `DiscrepancyService` service-level rule | ✅ |
 | Add service test for unbilled usage | ✅ |
-| Negative test: usage exists + billing exists → no discrepancy | 🔴 TODO |
-| `GET /api/discrepancies` endpoint | 🔴 TODO |
-| Discrepancy response DTO | 🔴 TODO |
-| Human-readable explanation refinement | 🔴 TODO |
+| Complete service scenario matrix for usage/billing presence | ✅ |
+| Validate discrepancy period before repository calls | ✅ |
+| `GET /api/discrepancies` endpoint | ✅ |
+| Discrepancy response DTO | ✅ |
+| Controller tests for result, empty list, and invalid period | ✅ |
+| Human-readable explanation refinement | ✅ |
 
 Current rule:
 
@@ -205,6 +208,12 @@ Design note:
 - Discrepancies are currently derived dynamically from `usage_events` and `billing_records`.
 - No `discrepancies` table exists yet.
 - Persisting discrepancies can be considered later if the system needs reconciliation run history, resolution status, owners, or audit workflow.
+- `GET /api/discrepancies` returns `200 OK` with a collection; no matches are represented as an empty list.
+- Invalid periods return `400 Bad Request` with `INVALID_BILLING_PERIOD`.
+
+Next Phase 2 steps:
+- Add a Testcontainers integration test for the real PostgreSQL reconciliation path.
+- Choose the next discrepancy type from a concrete failure scenario.
 
 ### Phase 2 Follow-up
 
@@ -248,6 +257,10 @@ Design note:
 - [x] Added `DiscrepancyType` and `Discrepancy` domain model
 - [x] Added `DiscrepancyService`
 - [x] Added green service-level test for `UNBILLED_USAGE`
+- [x] Covered all usage/billing presence combinations
+- [x] Added `DiscrepancyResponse`
+- [x] Added `GET /api/discrepancies`
+- [x] Added invalid-period handling and controller coverage
 
 **Learned:**
 - Business rules should not live only in comments.
@@ -255,9 +268,13 @@ Design note:
 - `UNBILLED_USAGE` means usage exists but a matching billing record is missing.
 - Billing exists but usage is missing is a different future discrepancy type, not `UNBILLED_USAGE`.
 - For one rule, a simple service-level `if` is enough; rule classes or a rule engine are premature.
+- A collection endpoint returns `200 OK` with `[]` when no discrepancies match.
+- Period validation must happen before repository access.
+- Service tests verify business behavior; controller tests verify HTTP mapping.
 
 **Next:**
-- Add negative test: usage exists and billing record exists returns no discrepancies.
+- Add Testcontainers integration coverage.
+- Choose the next discrepancy type from a concrete scenario.
 - Add `@Service` before wiring the rule into an API endpoint.
 - Decide the first API shape for `GET /api/discrepancies`.
 
@@ -447,11 +464,8 @@ Design note:
 
 ## Current Next Steps
 
-1. Add negative service test: usage exists + billing record exists → no discrepancy.
-2. Add `@Service` to `DiscrepancyService` before wiring it into Spring.
-3. Decide first `GET /api/discrepancies` request/response shape.
-4. Add controller + DTO only after service behavior is covered.
-5. Add TestContainers integration tests as Phase 2 / deploy follow-up.
+1. Add Testcontainers integration coverage for reconciliation.
+2. Choose the next discrepancy type from a concrete failure scenario.
 
 ### Week 6: 26 April 2026
 

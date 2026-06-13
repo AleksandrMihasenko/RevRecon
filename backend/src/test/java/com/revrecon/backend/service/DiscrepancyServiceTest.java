@@ -40,7 +40,10 @@ public class DiscrepancyServiceTest {
         assertEquals(DiscrepancyType.UNBILLED_USAGE, discrepancies.get(0).getType(), "Discrepancy type should be UNBILLED_USAGE");
         assertEquals(periodStart, discrepancies.get(0).getPeriodStart(), "Discrepancy period start should match");
         assertEquals(periodEnd, discrepancies.get(0).getPeriodEnd(), "Discrepancy period end should match");
-        assertTrue(discrepancies.get(0).getExplanation().contains("Billing"), "Discrepancy explanation should contain 'Billing'");
+        assertTrue(
+                discrepancies.get(0).getExplanation().contains("no matching billing record"),
+                "Discrepancy explanation should describe the missing matching billing record"
+        );
     }
 
     @Test
