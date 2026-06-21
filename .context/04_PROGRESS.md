@@ -44,6 +44,7 @@
 | GET /api/health | ✅ |
 | First discrepancy rule: UNBILLED_USAGE | ✅ |
 | GET /api/discrepancies | ✅ |
+| First Testcontainers reconciliation integration test | ✅ |
 
 ---
 
@@ -145,7 +146,7 @@
 | BillingRecordService unit tests | ✅ |
 | UsageBillingSummary controller test | ✅ |
 | UsageBillingSummary service unit test | ✅ |
-| Integration tests base | 🔴 TODO — moved to deploy prep / Phase 2 follow-up |
+| Integration tests base | ✅ — first Testcontainers-backed service integration test added in Phase 2 |
 | Controller tests for POST /api/usage-events | ✅ |
 | Idempotency test (controller level) | ✅ |
 | Controller tests for POST /api/billing | ✅ |
@@ -195,6 +196,9 @@ Next product/learning focus: continue Phase 2 reconciliation from the first conc
 | Discrepancy response DTO | ✅ |
 | Controller tests for result, empty list, and invalid period | ✅ |
 | Human-readable explanation refinement | ✅ |
+| Testcontainers dependency setup for Spring Boot 4 / Testcontainers 2.x | ✅ |
+| PostgreSQL/Flyway-backed integration test for `UNBILLED_USAGE` | ✅ |
+| JDBC `Instant` parameter handling fixed with `Timestamp.from(...)` | ✅ |
 
 Current rule:
 
@@ -212,8 +216,17 @@ Design note:
 - Invalid periods return `400 Bad Request` with `INVALID_BILLING_PERIOD`.
 
 Next Phase 2 steps:
-- Add a Testcontainers integration test for the real PostgreSQL reconciliation path.
+- Add the passing integration scenario: usage exists and matching billing record exists, so no discrepancy is returned.
 - Choose the next discrepancy type from a concrete failure scenario.
+
+Integration test note:
+- `DiscrepancyServiceIntegrationTest` verifies the real path through Spring context, Testcontainers PostgreSQL, Flyway migration, `NamedParameterJdbcTemplate`, repositories, and `DiscrepancyService`.
+- Local Colima/Testcontainers runs require:
+
+```text
+TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+TESTCONTAINERS_RYUK_DISABLED=true
+```
 
 ### Phase 2 Follow-up
 
@@ -262,6 +275,22 @@ Next Phase 2 steps:
 - [x] Added `GET /api/discrepancies`
 - [x] Added invalid-period handling and controller coverage
 
+### Testcontainers / Reconciliation Integration
+
+**Done:**
+- [x] Added Spring Boot Testcontainers dependencies using Testcontainers 2.x artifact names
+- [x] Added first `DiscrepancyService` integration test backed by real PostgreSQL
+- [x] Confirmed Flyway creates schema inside the Testcontainers database
+- [x] Seeded realistic data through `NamedParameterJdbcTemplate`
+- [x] Verified `UNBILLED_USAGE` when usage exists and matching billing record is missing
+- [x] Fixed raw JDBC timestamp parameter binding in repository aggregation queries
+
+**Learned:**
+- Spring Boot's `@ServiceConnection` wires the PostgreSQL container into the application `DataSource`.
+- Flyway migrations run automatically against the container database during `@SpringBootTest`.
+- Mock tests did not catch `Instant` binding issues; the integration test exposed the real PostgreSQL driver behavior.
+- IntelliJ JUnit and Maven runners need their own environment variables; they do not inherit shell `export` values when IDEA is launched as a GUI app.
+
 **Learned:**
 - Business rules should not live only in comments.
 - A rule is made understandable through domain names, enums, small service methods, scenario tests, and docs.
@@ -273,10 +302,9 @@ Next Phase 2 steps:
 - Service tests verify business behavior; controller tests verify HTTP mapping.
 
 **Next:**
-- Add Testcontainers integration coverage.
+- Add the passing Testcontainers scenario where usage and matching billing record both exist.
 - Choose the next discrepancy type from a concrete scenario.
-- Add `@Service` before wiring the rule into an API endpoint.
-- Decide the first API shape for `GET /api/discrepancies`.
+- Keep Phase 2 focused on reconciliation behavior, not generic test infrastructure.
 
 ### Docker / Local Deploy Prep
 
