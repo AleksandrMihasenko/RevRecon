@@ -144,8 +144,8 @@ public class BillingRecordRepository {
                 "WHERE customer_id = :customerId AND period_start = :periodStart AND period_end = :periodEnd";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("customerId", customerId)
-                .addValue("periodStart", periodStart)
-                .addValue("periodEnd", periodEnd);
+                .addValue("periodStart", Timestamp.from(periodStart))
+                .addValue("periodEnd", Timestamp.from(periodEnd));
 
         return jdbcTemplate.queryForObject(sql, params, BigDecimal.class);
     }

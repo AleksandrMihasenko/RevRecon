@@ -126,8 +126,8 @@ public class UsageEventRepository {
                 "ORDER BY metric";
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("customerId", customerId)
-                .addValue("periodStart", periodStart)
-                .addValue("periodEnd", periodEnd);
+                .addValue("periodStart", Timestamp.from(periodStart))
+                .addValue("periodEnd", Timestamp.from(periodEnd));
 
         return jdbcTemplate.query(sql, params, (rs, rowNum) -> new UsageMetricTotal(
                 rs.getString("metric"),
