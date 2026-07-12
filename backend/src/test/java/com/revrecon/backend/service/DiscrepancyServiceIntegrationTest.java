@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Testcontainers
@@ -68,5 +69,43 @@ public class DiscrepancyServiceIntegrationTest {
         assertEquals(DiscrepancyType.UNBILLED_USAGE, discrepancies.get(0).getType());
         assertEquals(periodStart, discrepancies.get(0).getPeriodStart());
         assertEquals(periodEnd, discrepancies.get(0).getPeriodEnd());
+    }
+
+    @Test
+    void findDiscrepancies_shouldReturnEmptyList_whenUsageExistsAndMatchingBillingRecordExists() {
+        // Arrange
+        Instant periodStart = Instant.parse("2026-04-01T00:00:00Z");
+        Instant periodEnd = Instant.parse("2026-05-01T00:00:00Z");
+        Long customerId = jdbcTemplate.queryForObject(
+                "INSERT INTO customers (name) VALUES (:name) RETURNING id",
+                Map.of("name", "Test Customer"),
+                Long.class
+        );
+        jdbcTemplate.update(
+                "INSERT INTO usage_events (idempotency_key, customer_id, metric, quantity, timestamp) VALUES (:idempotencyKey, :customerId, :metric, :quantity, :timestamp)",
+                Map.of(
+                        "idempotencyKey", "usage-2026-04-001",
+                        "customerId", customerId,
+                        "metric", "api_calls",
+                        "quantity", new BigDecimal("1200"),
+                        "timestamp", Timestamp.from(Instant.parse("2026-04-15T00:00:00Z"))
+                )
+        );
+        jdbcTemplate.update(
+                "INSERT INTO billing_records (idempotency_key, customer_id, period_start, period_end, amount) VALUES (:idempotencyKey, :customerId, :periodStart, :periodEnd, :amount)",
+                Map.of(
+                        "idempotencyKey", "usage-2026-04-001",
+                        "customerId", customerId,
+                        "periodStart", Timestamp.from(periodStart),
+                        "periodEnd", Timestamp.from(periodEnd),
+                        "amount", new BigDecimal("12.00")
+                )
+        );
+
+        // Act
+        List<DiscrepancyResponse> discrepancies = discrepancyService.findDiscrepancies(customerId, periodStart, periodEnd);
+
+        // Assert
+        assertTrue(discrepancies.isEmpty());
     }
 }
