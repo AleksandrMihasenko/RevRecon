@@ -1,6 +1,6 @@
 # Domain Glossary
 
-**Last Updated:** 17 May 2026
+**Last Updated:** 12 July 2026
 **Purpose:** Ubiquitous language — terms we use in code, conversations, and documentation.
 
 ---
@@ -39,6 +39,30 @@
 - Has many Subscriptions
 
 **Example:** "Pro Plan charges $0.01 per API call and $0.10 per GB of storage."
+
+---
+
+### Plan Prices
+
+Current `prices` format is a JSON object where each key is a usage metric and each value is the per-unit price for that metric.
+
+Example:
+
+```json
+{
+  "api_calls": 0.01,
+  "storage_gb": 0.50
+}
+```
+
+Current supported pricing model:
+- per-event / per-unit pricing: `expected charge = quantity × metric price`
+
+Not supported yet:
+- tiered pricing
+- minimum commitments
+- included usage
+- discounts in expected charge calculation
 
 ---
 
@@ -148,6 +172,31 @@ Current persistence:
 
 ---
 
+### Expected Charge
+
+**Definition:** The amount the system expects a customer to be billed for a period based on usage totals and plan prices.
+
+Current calculation:
+
+```text
+expected charge = SUM(usage total quantity × per-unit price for that metric)
+```
+
+Example:
+
+```text
+1200 api_calls × 0.01 = 12.00
+10 storage_gb × 0.50 = 5.00
+expected charge = 17.00
+```
+
+Current implementation:
+- `ExpectedChargeCalculator` calculates expected charge from usage totals and `Plan.prices` JSON.
+- It is covered by unit tests for a single metric and multiple metrics.
+- It is not yet connected to `DiscrepancyService`.
+
+---
+
 ## Enums
 
 ### subscription_status
@@ -202,6 +251,10 @@ Important distinction:
 6. If mismatch → Discrepancy (Phase 2)
 ```
 
+Current progress:
+- Step 3 exists as a small calculator for per-event pricing.
+- Steps 1, 2, 4, 5, and 6 are not wired into reconciliation yet.
+
 ---
 
 ## Key Concepts
@@ -239,3 +292,9 @@ This is the first implemented revenue leakage scenario in RevRecon.
 **Topic:** First reconciliation rule
 
 **Insight:** The first Phase 2 rule is intentionally narrow: usage exists and the billing record is missing. Amount mismatches and billing-without-usage are separate future discrepancy types.
+
+### 12 July 2026
+
+**Topic:** First pricing calculation
+
+**Insight:** Expected charge calculation starts as a small per-event calculator before being wired into discrepancy detection. This keeps the pricing rule testable before adding subscription lookup and billing comparison.

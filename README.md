@@ -143,9 +143,15 @@ RevRecon/
 - [x] Phase 1 controller/service tests
 - [x] Local Docker Compose baseline
 - [x] Lightweight health endpoint
-- [ ] TestContainers integration tests (Phase 2 / deploy follow-up)
+
+**Phase 2: Reconciliation + Pricing** — Started
+
+- [x] First discrepancy rule: usage exists but matching billing record is missing
+- [x] TestContainers passing scenario: usage exists and matching billing record exists
+- [x] Minimal per-event expected charge calculator
+- [ ] Compare expected charge vs billed amount
+- [ ] Report amount mismatch in money
 - [ ] Hosted deployment decision
-- [ ] Phase 2 reconciliation logic
 
 ## Documentation
 

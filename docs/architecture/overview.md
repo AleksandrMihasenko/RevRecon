@@ -1,7 +1,7 @@
 # Architecture Overview
 
-**Last Updated:** 13 June 2026
-**Status:** Phase 2 — First reconciliation rule exposed through API
+**Last Updated:** 12 July 2026
+**Status:** Phase 2 — First reconciliation rule exposed through API; per-event expected charge calculator started
 
 ---
 
@@ -172,6 +172,7 @@ Derived domain model:
 | HealthController | GET /health lightweight liveness check | 1 / Deploy prep | ✅ Done |
 | DiscrepancyService | Detect first discrepancy from source data | 2 | ✅ First rule done |
 | DiscrepancyController | GET /discrepancies | 2 | ✅ Done |
+| ExpectedChargeCalculator | Calculate expected charge from usage totals and per-event prices | 2 | ✅ Minimal calculator done |
 | ReconciliationService | Compare usage vs billing | 2 | 🔴 TODO |
 | DiscrepancyDetector | Find and classify issues | 2 | 🔴 TODO |
 | ExplainabilityEngine | Analyze root cause | 3 | 🔴 TODO |
@@ -206,6 +207,51 @@ Design notes:
 - The rule is intentionally narrow: `UNBILLED_USAGE` means billing record missing, not amount mismatch.
 - Billing exists but no usage supports it is a different future discrepancy type.
 - No `discrepancies` table exists yet; persistence can be added when reconciliation history or workflow is needed.
+
+The passing scenario is now covered by the integration test:
+
+```text
+If usage exists
+and a billing record exists for the same customer + exact period,
+then `UNBILLED_USAGE` is not returned.
+```
+
+This does not mean the billed amount is correct. Amount correctness is a separate pricing/reconciliation scenario.
+
+### ExpectedChargeCalculator: per-event prices
+
+Purpose: calculate the expected billed amount from aggregated usage totals and simple per-event prices.
+
+Current rule:
+
+```text
+expected charge = SUM(usage total quantity × per-unit metric price)
+```
+
+Example:
+
+```text
+1200 api_calls × 0.01 = 12.00
+10 storage_gb × 0.50 = 5.00
+expected charge = 17.00
+```
+
+Input:
+- `List<UsageMetricTotal>`
+- `pricesJson`, currently matching `Plan.prices` shape: metric → per-unit price
+
+Design notes:
+- This is intentionally a small service-level helper, not a full pricing engine.
+- JSON parsing is kept separate from the arithmetic so the billing logic remains easy to read.
+- It is not wired into `DiscrepancyService` yet.
+- Discounts, tiers, included usage, and missing price handling are future scenarios.
+
+Next scenario:
+
+```text
+If expected charge differs from BillingRecord.amount,
+return an amount mismatch discrepancy that explains the difference in money.
+```
 
 ### GET /api/health
 
