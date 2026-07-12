@@ -28,5 +28,7 @@ replay_pid*
 
 .env
 
-# Private wiki and career docs - NEVER publish
+# Private local context - NEVER publish
 .wiki/
+.context/
+CLAUDE.md
