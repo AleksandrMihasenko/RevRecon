@@ -73,6 +73,36 @@ public class SubscriptionRepository {
         });
     }
 
+    public Optional<Subscription> findApplicableForPeriod(Long customerId, Instant billingPeriodStart, Instant billingPeriodEnd) {
+        String sql = "SELECT id, customer_id, plan_id, discount, start_date, end_date, status, created_at, updated_at " +
+                "FROM subscriptions " +
+                " WHERE customer_id = :customerId AND start_date <= :billingPeriodStart AND (end_date >= :billingPeriodEnd OR end_date IS NULL)";
+
+        MapSqlParameterSource params = new MapSqlParameterSource()
+                .addValue("customerId", customerId)
+                .addValue("billingPeriodStart", Timestamp.from(billingPeriodStart))
+                .addValue("billingPeriodEnd", Timestamp.from(billingPeriodEnd));
+
+        List<Subscription> results = jdbcTemplate.query(sql, params, (rs, rowNum) -> {
+            Timestamp endDate = rs.getTimestamp("end_date");
+            Instant subscriptionEndDate = endDate != null ? endDate.toInstant() : null;
+
+                return new Subscription(
+                        rs.getLong("id"),
+                        rs.getLong("customer_id"),
+                        rs.getLong("plan_id"),
+                        rs.getInt("discount"),
+                        rs.getTimestamp("start_date").toInstant(),
+                        subscriptionEndDate,
+                        SubscriptionStatus.valueOf(rs.getString("status").toUpperCase()),
+                        rs.getTimestamp("created_at").toInstant(),
+                        rs.getTimestamp("updated_at").toInstant()
+                );
+            });
+
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
+    }
+
     public void insert(Subscription subscription) {
         Timestamp subscriptionEndDate = subscription.getEndDate() != null ? Timestamp.from(subscription.getEndDate()) : null;
 

@@ -5,12 +5,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.revrecon.backend.model.ExpectedChargeResult;
 import com.revrecon.backend.model.UsageMetricTotal;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class ExpectedChargeCalculator {
     private final JsonMapper jsonMapper = JsonMapper.builder().build();
 
